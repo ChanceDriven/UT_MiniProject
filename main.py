@@ -8,6 +8,7 @@ class Stream(db.Model):
     author = db.UserProperty()
     imgUrl = db.StringProperty()
     createdDate = db.DateTimeProperty(auto_now_add=True)
+    views = db.IntProperty()
 
 
 class HelloWebapp2(webapp2.RequestHandler):
@@ -17,8 +18,29 @@ class HelloWebapp2(webapp2.RequestHandler):
 
 class Login(webapp2.RequestHandler):
     def post(self, user_id):
-        #Need to return a session ID instead
+        # Need to return a session ID instead
         self.response.write(user_id)
+
+
+class StreamRest(webapp2.RequestHandler):
+    def get(self):
+        # all streams
+        all_streams = db.GqlQuery("select * from streams")
+        self.response.write(all_streams)
+
+    def get(self, stream_id):
+        stream = db.GqlQuery("select * from streams "
+                             "where id = :1", stream_id)
+        self.response.write(stream)
+
+
+class StreamTrending(webapp2.RequestHandler):
+    def get(self):
+        # change out with trending streams
+        all_streams = db.GqlQuery("select * from streams "
+                                  "where rownum < 11 "
+                                  "orderby views desc")
+        self.response.write(all_streams)
 
 
 class Management(webapp2.RequestHandler):
@@ -32,5 +54,7 @@ class Management(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
-    (r'/login/(\w+)', Login)
+    (r'/login/(\w+)', Login),
+    (r'/streams', StreamRest),
+    (r'/streams/(\w+)', StreamRest)
 ], debug=True)
