@@ -5,6 +5,7 @@ import webapp2
 
 class Stream(db.Model):
     id = db.IntProperty()
+    name = db.StringProperty()
     author = db.UserProperty()
     imgUrl = db.StringProperty()
     createdDate = db.DateTimeProperty(auto_now_add=True)
@@ -43,6 +44,14 @@ class StreamTrending(webapp2.RequestHandler):
         self.response.write(all_streams)
 
 
+class StreamSearch(webapp2.RequestHandler):
+    def get(self, query):
+        # change out with trending streams
+        all_streams = db.GqlQuery("select * from streams "
+                                  "where name % :1 ", query)
+        self.response.write(all_streams)
+
+
 class Management(webapp2.RequestHandler):
     def get(self, user_id):
         subscribed = db.GqlQuery("select a.* from streams a, subscriptions b "
@@ -56,5 +65,7 @@ app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
     (r'/login/(\w+)', Login),
     (r'/streams', StreamRest),
+    (r'/streams/trending', StreamTrending)
+    (r'/streams/search/(\w+)', StreamSearch)
     (r'/streams/(\w+)', StreamRest)
 ], debug=True)
