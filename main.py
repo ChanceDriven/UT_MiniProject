@@ -1,6 +1,17 @@
+import os
+import urllib
+
 from google.appengine.ext import db
 from google.appengine.api import users
+
+import jinja2
 import webapp2
+
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True
+)
 
 
 class HelloWebapp2(webapp2.RequestHandler):
@@ -46,6 +57,9 @@ class Management(webapp2.RequestHandler):
 class CreateStream(webapp2.RequestHandler):
     # Handler to create the stream information should be passed to the service to create
     # the object and store it.
+    def get(self):
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/create_stream.html')
+        self.response.write(template)
     def post(self):
         pass
 
@@ -56,5 +70,5 @@ app = webapp2.WSGIApplication([
     (r'/login/(\w+)', Login),
     (r'/streams', StreamRest),
     (r'/streams/(\w+)', StreamRest),
-    (r'/')
+    (r'/createstream', CreateStream)
 ], debug=True)
