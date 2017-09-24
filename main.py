@@ -3,14 +3,6 @@ from google.appengine.api import users
 import webapp2
 
 
-class Stream(db.Model):
-    id = db.IntProperty()
-    author = db.UserProperty()
-    imgUrl = db.StringProperty()
-    createdDate = db.DateTimeProperty(auto_now_add=True)
-    views = db.IntProperty()
-
-
 class HelloWebapp2(webapp2.RequestHandler):
     def get(self):
         self.response.write('Hello, webapp2!')
@@ -51,10 +43,18 @@ class Management(webapp2.RequestHandler):
                                "where author = :1", user_id)
         self.response.write(subscribed, authored)
 
+class CreateStream(webapp2.RequestHandler):
+    # Handler to create the stream information should be passed to the service to create
+    # the object and store it.
+    def post(self):
+        pass
+
+
 
 app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
     (r'/login/(\w+)', Login),
     (r'/streams', StreamRest),
-    (r'/streams/(\w+)', StreamRest)
+    (r'/streams/(\w+)', StreamRest),
+    (r'/')
 ], debug=True)
