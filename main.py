@@ -10,7 +10,7 @@ import webapp2
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
-    name = db.StringProperty()
+    name = db.StringProperty(),
     autoescape=True
 )
 

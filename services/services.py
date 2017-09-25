@@ -1,25 +1,23 @@
-from google.appengine.ext import db
-from google.appengine.ext import ndb
-from google.appengine.api import users
 from google.cloud import datastore
 
-import Models
+from models import *
 
 
+class Service:
+    def __init__(self):
+        pass
 
-def __init__(self):
-        self
+    def create_stream(self, name, author, subscribers, image_url):
+        """
+        :param name:
+        :param author:
+        :param subscribers:
+        :param image_url:
+        :return html:
+        """
 
-def create_stream(self, name,author,subscribers,image_url):
-    '''This function creates the stream from the strings passed to the handler'''
-
-    #name, author, subscribers, image_url)
-    new_stream = Models.Stream(name,author,subscribers,image_url)
-    datastore_client = datastore.Client()
-    datastore_client.put()
-    return 200
-
-
-
-
-
+        # name, author, subscribers, image_url)
+        new_stream = Stream(name, author, subscribers, image_url)
+        datastore_client = datastore.Client()
+        datastore_client.put()
+        return 200
