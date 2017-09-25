@@ -1,6 +1,6 @@
 from google.cloud import datastore
 
-from models import *
+from models import Stream
 
 
 class Service:

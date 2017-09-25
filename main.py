@@ -1,11 +1,10 @@
 import os
-import urllib
 
 from google.appengine.ext import db
-from google.appengine.api import users
 
 import jinja2
 import webapp2
+from services import services
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -68,6 +67,7 @@ class CreateStream(webapp2.RequestHandler):
     # the object and store it.
     def get(self):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/create_stream.html')
+        services.Service.create_stream()
         self.response.write(template)
 
     def post(self):
