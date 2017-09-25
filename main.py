@@ -1,15 +1,18 @@
+import os
+import urllib
+
 from google.appengine.ext import db
 from google.appengine.api import users
+
+import jinja2
 import webapp2
 
-
-class Stream(db.Model):
-    id = db.IntProperty()
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
     name = db.StringProperty()
-    author = db.UserProperty()
-    imgUrl = db.StringProperty()
-    createdDate = db.DateTimeProperty(auto_now_add=True)
-    views = db.IntProperty()
+    autoescape=True
+)
 
 
 class HelloWebapp2(webapp2.RequestHandler):
@@ -60,12 +63,23 @@ class Management(webapp2.RequestHandler):
                                "where author = :1", user_id)
         self.response.write(subscribed, authored)
 
+class CreateStream(webapp2.RequestHandler):
+    # Handler to create the stream information should be passed to the service to create
+    # the object and store it.
+    def get(self):
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/create_stream.html')
+        self.response.write(template)
+    def post(self):
+        pass
+
+
 
 app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
     (r'/login/(\w+)', Login),
     (r'/streams', StreamRest),
+    (r'/streams/(\w+)', StreamRest),
+    (r'/createstream', CreateStream)
     (r'/streams/trending', StreamTrending)
     (r'/streams/search/(\w+)', StreamSearch)
-    (r'/streams/(\w+)', StreamRest)
 ], debug=True)
