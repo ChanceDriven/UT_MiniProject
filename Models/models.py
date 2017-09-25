@@ -2,11 +2,12 @@ from google.appengine.ext import ndb
 
 
 class Stream(ndb.Model):
-    imgUrl = ndb.StringProperty()
+    test = ndb.StringProperty()
+
     createdDate = ndb.DateTimeProperty(auto_now_add=True)
     views = ndb.IntegerProperty()
     name = ndb.StringProperty()
     subscribers = ndb.IntegerProperty()
 
     def __init__(self):
-        pass
+        ndb.Model.__init__(self)

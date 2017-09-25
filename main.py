@@ -32,7 +32,7 @@ class StreamRest(webapp2.RequestHandler):
 
     def get(self, stream_id):
         stream = ndb.GqlQuery("select * from streams "
-                             "where id = :1", stream_id)
+                              "where id = :1", stream_id)
         self.response.write(stream)
 
 
@@ -40,8 +40,8 @@ class StreamTrending(webapp2.RequestHandler):
     def get(self):
         # change out with trending streams
         all_streams = ndb.GqlQuery("select * from streams "
-                                  "where rownum < 11 "
-                                  "orderby views desc")
+                                   "where rownum < 11 "
+                                   "orderby views desc")
         self.response.write(all_streams)
 
 
@@ -49,16 +49,16 @@ class StreamSearch(webapp2.RequestHandler):
     def get(self, query):
         # change out with trending streams
         all_streams = ndb.GqlQuery("select * from streams "
-                                  "where name % :1 ", query)
+                                   "where name % :1 ", query)
         self.response.write(all_streams)
 
 
 class Management(webapp2.RequestHandler):
     def get(self, user_id):
         subscribed = ndb.GqlQuery("select a.* from streams a, subscriptions b "
-                                 "where b.author = :1 and a.id = b.streamId", user_id)
+                                  "where b.author = :1 and a.id = b.streamId", user_id)
         authored = ndb.GqlQuery("select * from streams "
-                               "where author = :1", user_id)
+                                "where author = :1", user_id)
         self.response.write(subscribed, authored)
 
 
@@ -79,7 +79,7 @@ app = webapp2.WSGIApplication([
     (r'/login/(\w+)', Login),
     (r'/streams', StreamRest),
     (r'/streams/(\w+)', StreamRest),
-    (r'/createstream', CreateStream),
+    (r'/create-stream', CreateStream),
     (r'/streams/trending', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch)
 ], debug=True)

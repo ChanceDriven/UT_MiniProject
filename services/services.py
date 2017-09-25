@@ -15,7 +15,6 @@ class Service:
         :return html:
         """
 
-        # name, author, subscribers, image_url)
         new_stream = models.Stream()
         new_stream.name = name
         new_stream.subscribers = subscribers
