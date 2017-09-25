@@ -31,7 +31,7 @@ class StreamRest(webapp2.RequestHandler):
         self.response.write(all_streams)
 
     def get(self, stream_id):
-        stream = db.GqlQuery("select * from streams "
+        stream = ndb.GqlQuery("select * from streams "
                              "where id = :1", stream_id)
         self.response.write(stream)
 
@@ -39,7 +39,7 @@ class StreamRest(webapp2.RequestHandler):
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
         # change out with trending streams
-        all_streams = db.GqlQuery("select * from streams "
+        all_streams = ndb.GqlQuery("select * from streams "
                                   "where rownum < 11 "
                                   "orderby views desc")
         self.response.write(all_streams)
@@ -48,16 +48,16 @@ class StreamTrending(webapp2.RequestHandler):
 class StreamSearch(webapp2.RequestHandler):
     def get(self, query):
         # change out with trending streams
-        all_streams = db.GqlQuery("select * from streams "
+        all_streams = ndb.GqlQuery("select * from streams "
                                   "where name % :1 ", query)
         self.response.write(all_streams)
 
 
 class Management(webapp2.RequestHandler):
     def get(self, user_id):
-        subscribed = db.GqlQuery("select a.* from streams a, subscriptions b "
+        subscribed = ndb.GqlQuery("select a.* from streams a, subscriptions b "
                                  "where b.author = :1 and a.id = b.streamId", user_id)
-        authored = db.GqlQuery("select * from streams "
+        authored = ndb.GqlQuery("select * from streams "
                                "where author = :1", user_id)
         self.response.write(subscribed, authored)
 
@@ -67,7 +67,7 @@ class CreateStream(webapp2.RequestHandler):
     # the object and store it.
     def get(self):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/create_stream.html')
-        services.Service.create_stream()
+        services.Service.create_stream("test", 5, "test2")
         self.response.write(template)
 
     def post(self):
