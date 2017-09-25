@@ -1,6 +1,4 @@
-from google.cloud import datastore
-
-from models import Stream
+from Models import models
 
 
 class Service:
@@ -17,7 +15,6 @@ class Service:
         """
 
         # name, author, subscribers, image_url)
-        new_stream = Stream(name, author, subscribers, image_url)
-        datastore_client = datastore.Client()
-        datastore_client.put(new_stream)
+        new_stream = models.Stream(name, author, subscribers, image_url)
+        new_stream.put()
         return 200

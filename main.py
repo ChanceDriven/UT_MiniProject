@@ -1,6 +1,6 @@
 import os
 
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 
 import jinja2
 import webapp2
@@ -27,7 +27,7 @@ class Login(webapp2.RequestHandler):
 class StreamRest(webapp2.RequestHandler):
     def get(self):
         # all streams
-        all_streams = db.GqlQuery("select * from streams")
+        all_streams = ndb.GqlQuery("select * from streams")
         self.response.write(all_streams)
 
     def get(self, stream_id):

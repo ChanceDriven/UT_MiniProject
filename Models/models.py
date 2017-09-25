@@ -1,24 +1,24 @@
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 
 
-class Stream(db.Model):
-    id = db.IntProperty()
-    author = db.UserProperty()
-    imgUrl = db.StringProperty()
-    createdDate = db.DateTimeProperty(auto_now_add=True)
-    views = db.IntProperty()
-    name = db.StringProperty()
+class Stream(ndb.Model):
+    id = ndb.IntProperty()
+    author = ndb.UserProperty()
+    imgUrl = ndb.StringProperty()
+    createdDate = ndb.DateTimeProperty(auto_now_add=True)
+    views = ndb.IntProperty()
+    name = ndb.StringProperty()
 
     def __init__(self):
         self.name = 'Stream1'
-        self.author = db.UserProperty()
+        self.author = ndb.UserProperty()
         self.subscribers = []
         self.imageUrl = 'image.jpg'
-        self.createdDate = db.DateTimeProperty(auto_now_add=True)
+        self.createdDate = ndb.DateTimeProperty(auto_now_add=True)
 
     def __init__(self, name, author, subscribers, image_url):
         self.name = name
         self.author = author
         self.subscribers = subscribers
         self.imageUrl = image_url
-        self.createdDate = db.DateTimeProperty(auto_now_add=True)
+        self.createdDate = ndb.DateTimeProperty(auto_now_add=True)
