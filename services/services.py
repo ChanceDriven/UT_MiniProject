@@ -1,4 +1,5 @@
 from Models import models
+import json
 
 
 class Service:
@@ -21,3 +22,10 @@ class Service:
         new_stream.imgUrl = image_url
         new_stream.put()
         return 200
+
+    @staticmethod
+    def get_all_streams():
+        temp_stream = models.Stream
+        query = temp_stream.query().order(temp_stream.createdDate)
+        all_streams = query.fetch()
+        return all_streams
