@@ -1,5 +1,9 @@
-from Models import models
 import json
+import re
+
+from Models import models
+from google.appengine.ext import ndb
+
 
 
 
@@ -21,6 +25,15 @@ def create_stream(name, subscribers, image_url):
     new_stream.imgUrl = image_url
     new_stream.put()
     return 200
+
+
+def create_image(stream_name, image_url):
+
+    new_image = models.Image(parent=ndb.Key("Stream", stream_name or "None"))
+    new_image.streamName = stream_name
+    new_image.imgUrl = image_url
+    key = new_image.put()
+    return key
 
 
 def get_all_streams():
@@ -49,13 +62,13 @@ def get_stream(stream_name = None, page_range = None ):
         #place holder for now
         return "Fail: No Name Provide or stream name is empty"
 
-    if page_range is None or page_range is "":
+    if page_range is None or page_range is "" :
         #place holder for now
         return "Fail: No Page info provided or page_range is empty"
 
-    stream_cls = models.Stream
-    query = stream_cls.query(stream_cls.name == stream_name).order(-stream_cls.createdDate)
-    stream = query.get()
-    if stream is None:
+    temp_image = models.Image
+    query = temp_image.query(temp_image.streamName == stream_name).order(-temp_image.createdDate)
+    images = query.fetch(page_range)
+    if images is None:
         return "Fail: No Stream matches name provided"
-    return json.dumps(stream)
+    return json.dumps(images, len(images))

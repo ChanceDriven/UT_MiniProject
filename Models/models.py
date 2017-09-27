@@ -16,14 +16,14 @@ class Stream(ndb.Model):
 
 
 class Image(ndb.Model):
-    streamId = ndb.StringProperty()
+    streamName = ndb.StringProperty()
     imgUrl = ndb.StringProperty()
-    updatedData = createdDate = ndb.DateTimeProperty(auto_now_add=True)
+    updatedDate = createdDate = ndb.DateTimeProperty(auto_now_add=True)
 
-    def __init__(self, stream_id, image_url="image.jpg"):
+    def __init__(self, stream_name="Image1", image_url="image.jpg"):
         ndb.Model.__init__(self)
-        self.streamId = stream_id
-        self.image_url = image_url
+        self.streamName = stream_name
+        self.imgUrl = image_url
 
 
 
