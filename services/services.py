@@ -81,11 +81,9 @@ def search_stream(string):
     query = temp_stream.query().order(temp_stream.createdDate)
     all_streams = query.fetch()
 
-    list_streams = [(stream.name, stream.coverImgUrl) for stream in all_streams]
-
     find_list = []
-    for stream in list_streams:
+    for stream in all_streams:
         if string.upper() in stream.name.upper():
             find_list.append(stream)
 
-    return find_list
+    return json.dumps(find_list)
