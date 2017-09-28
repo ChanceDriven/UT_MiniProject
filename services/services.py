@@ -5,8 +5,6 @@ from Models import models
 from google.appengine.ext import ndb
 
 
-
-
 def create_stream(name, subscribers, image_url):
     """
 
@@ -28,7 +26,6 @@ def create_stream(name, subscribers, image_url):
 
 
 def create_image(stream_name, image_url):
-
     new_image = models.Image(parent=ndb.Key("Stream", stream_name or "None"))
     new_image.streamName = stream_name
     new_image.imgUrl = image_url
@@ -51,7 +48,7 @@ def get_all_streams():
     return json.dumps(list_streams)
 
 
-def get_stream(stream_name = None, page_range = None ):
+def get_stream(stream_name=None, page_range=None):
     """
 
     :param stream_name: the name of the stream
@@ -59,11 +56,11 @@ def get_stream(stream_name = None, page_range = None ):
     :return: returns the list of images and
     """
     if stream_name is None or stream_name is "":
-        #place holder for now
+        # place holder for now
         return "Fail: No Name Provide or stream name is empty"
 
-    if page_range is None or page_range is "" :
-        #place holder for now
+    if page_range is None or page_range is "":
+        # place holder for now
         return "Fail: No Page info provided or page_range is empty"
 
     temp_image = models.Image
@@ -72,3 +69,23 @@ def get_stream(stream_name = None, page_range = None ):
     if images is None:
         return "Fail: No Stream matches name provided"
     return json.dumps(images, len(images))
+
+
+def search_stream(string):
+    """
+    :param string:
+    :return (array):
+    """
+
+    temp_stream = models.Stream
+    query = temp_stream.query().order(temp_stream.createdDate)
+    all_streams = query.fetch()
+
+    list_streams = [(stream.name, stream.coverImgUrl) for stream in all_streams]
+
+    find_list = []
+    for stream in list_streams:
+        if string.upper() in stream.name.upper():
+            find_list.append(stream)
+
+    return find_list
