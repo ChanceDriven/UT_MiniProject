@@ -7,6 +7,7 @@ class Stream(ndb.Model):
     createdDate = ndb.DateTimeProperty(auto_now_add=True)
     views = ndb.IntegerProperty()
     subscribers = ndb.IntegerProperty()
+    imgUrls = ndb.StringProperty(repeat=True)
 
     def __init__(self, name="Stream1", subscribers=8, image_url="image.jpg"):
         ndb.Model.__init__(self)
@@ -16,13 +17,12 @@ class Stream(ndb.Model):
 
 
 class Image(ndb.Model):
-    streamName = ndb.StringProperty()
     imgUrl = ndb.StringProperty()
     updatedDate = createdDate = ndb.DateTimeProperty(auto_now_add=True)
 
-    def __init__(self, stream_name="Image1", image_url="image.jpg"):
+    def __init__(self, data=data):
         ndb.Model.__init__(self)
-        self.streamName = stream_name
+        # put image into google, get url
         self.imgUrl = image_url
 
 
