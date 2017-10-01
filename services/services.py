@@ -85,6 +85,9 @@ def search_stream(string):
     for stream in all_streams:
         if string.upper() in stream.name.upper():
             find_list.append(stream)
+            if len(find_list) > 4:
+                break
+                # This limits the results to 5 at most
 
     return json.dumps(find_list)
 
