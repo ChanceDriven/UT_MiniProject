@@ -3,17 +3,19 @@ from google.appengine.ext import ndb
 
 class Stream(ndb.Model):
     name = ndb.StringProperty()
+    author = ndb.StringProperty()
     coverImgUrl = ndb.StringProperty()
     createdDate = ndb.DateTimeProperty(auto_now_add=True)
     views = ndb.IntegerProperty()
     subscribers = ndb.IntegerProperty()
     imgUrls = ndb.StringProperty(repeated=True)
 
-    def __init__(self, name="Stream1", subscribers=8, image_url="image.jpg"):
+    def __init__(self, name="Stream1", subscribers=8, image_url="image.jpg", author=""):
         ndb.Model.__init__(self)
         self.name = name
         self.subscribers = subscribers
         self.coverImgUrl = image_url
+        self.author = author
 
 
 class Image(ndb.Model):

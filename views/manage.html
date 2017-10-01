@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexus - Stream Management</title>
+</head>
+<body>
+{% include 'views/navbar.html' %}
+<h2>Streams I own</h2>
+<table></table>
+
+<h2>streams I subscribe to</h2>
+<table>
+    <tr>
+        <td style="border-right:1px solid #ccc;">Name</td>
+        <td style="border-right:1px solid #ccc;">Last New Picture</td>
+        <td style="border-right:1px solid #ccc;">Number of Pictures</td>
+        <td style="border-right:1px solid #ccc;">Views</td>
+        <td style="border-right:1px solid #ccc;">Unsubscribe</td>
+    </tr>
+    {% for stream in subscribed_streams %}
+        <tr>
+            <td style="border-right:1px solid #ccc;">{{stream.name}}</td>
+            <td style="border-right:1px solid #ccc;">{{stream.date}}</td>
+            <td style="border-right:1px solid #ccc;"></td>
+            <td style="border-right:1px solid #ccc;">{{stream.views}}</td>
+            <td style="border-right:1px solid #ccc;"><input type="checkbox" /></td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
