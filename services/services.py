@@ -101,3 +101,17 @@ def upload_image(stream_id, data, name):
     new_image = models.Image(name, data)
     img_key = new_image.put()
     stream.imgUrls.append(img_key)
+
+
+def get_manage_streams(user_id):
+    temp_stream = models.Stream
+    query = temp_stream.query().order(temp_stream.createdDate)
+    all_streams = query.fetch()
+
+    my_streams = []
+    subscribed_streams = []
+    for stream in all_streams:
+        if stream.author == user_id:
+            my_streams.append(stream)
+            subscribed_streams.append(stream)
+    return my_streams, subscribed_streams
