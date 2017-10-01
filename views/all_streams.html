@@ -1,0 +1,13 @@
+
+<body>
+    <div id="view_all_streams">
+        <h1>
+            View All Streams
+        </h1>
+        {% for stream in all_streams %}
+        <div>
+            <img src=stream.coverImgUrl alt = stream.name>
+        </div>
+        {% endfor %}
+    </div>
+</body>
