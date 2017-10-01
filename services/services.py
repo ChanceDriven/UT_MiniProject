@@ -88,12 +88,13 @@ def search_stream(string):
 
     return json.dumps(find_list)
 
-def upload_image(stream_id, data):
+
+def upload_image(stream_id, data, name):
     temp_stream = models.Stream
     stream = temp_stream.query(temp_stream.key == stream_id).fetch()
     if stream.imgUrls is None:
         stream.imgUrls = []
 
-    new_image = models.Image(data=data)
+    new_image = models.Image(name, data)
     img_key = new_image.put()
     stream.imgUrls.append(img_key)
