@@ -1,5 +1,5 @@
 import os
-
+import json
 from google.appengine.ext import ndb
 
 import jinja2
@@ -35,7 +35,8 @@ class StreamRest(webapp2.RequestHandler):
     def get(self):
         # all streams
         all_streams = services.get_all_streams()
-        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html').render(all_streams)
+        json_streams = json.loads(all_streams)
+        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html').render(json_streams)
         self.response.write(template)
 
 class StreamTrending(webapp2.RequestHandler):
