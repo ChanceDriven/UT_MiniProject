@@ -1,5 +1,5 @@
 import os
-
+import json
 from google.appengine.ext import ndb
 
 import jinja2
@@ -34,14 +34,15 @@ class LoginScreen(webapp2.RequestHandler):
 class StreamRest(webapp2.RequestHandler):
     def get(self):
         # all streams
-        all_streams = ndb.GqlQuery("select * from streams")
-        self.response.write(all_streams)
-
+        all_streams = services.get_all_streams()
+        json_streams = json.loads(all_streams)
+        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html').render(json_streams)
+        self.response.write(template)
+        
     def get(self, stream_id):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/stream.html')
         stream = services.get_stream(stream_id)
         self.response.write(template.render(stream=stream, index=0, length=len(stream.images)))
-
 
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
@@ -79,6 +80,11 @@ class CreateStream(webapp2.RequestHandler):
     def post(self):
         pass
 
+class Error(webapp2.RequestHandler):
+    def get(self):
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/error.html').render()
+        self.response.write(template)
+
 
 app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
@@ -89,5 +95,6 @@ app = webapp2.WSGIApplication([
     (r'/streams/(\w+)', StreamRest),
     (r'/create-stream', CreateStream),
     (r'/streams/trending', StreamTrending),
-    (r'/streams/search/(\w+)', StreamSearch)
+    (r'/streams/search/(\w+)', StreamSearch),
+    (r'/error', Error)
 ], debug=True)

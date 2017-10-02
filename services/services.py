@@ -42,7 +42,7 @@ def get_all_streams():
     query = temp_stream.query().order(temp_stream.createdDate)
     all_streams = query.fetch()
 
-    list_streams = [(stream.name, stream.coverImgUrl) for stream in all_streams]
+    list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
 
     return json.dumps(list_streams)
 
