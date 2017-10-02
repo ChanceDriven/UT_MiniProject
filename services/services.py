@@ -35,7 +35,6 @@ def create_image(stream_name, image_url):
 
 def get_all_streams():
     """
-
     :return: a list of all the streams' names and the cover image URL  in the datastore sorted by createDate ascending
     """
 
@@ -48,27 +47,20 @@ def get_all_streams():
     return json.dumps(list_streams)
 
 
-def get_stream(stream_name=None, page_range=None):
+def get_stream(stream_id):
+    """
+    :param stream_id: the name of the stream
+    :return: returns the stream
     """
 
-    :param stream_name: the name of the stream
-    :param page_range: the page range that you wish to fetch
-    :return: returns the list of images and
-    """
-    if stream_name is None or stream_name is "":
-        # place holder for now
-        return "Fail: No Name Provide or stream name is empty"
-
-    if page_range is None or page_range is "":
-        # place holder for now
-        return "Fail: No Page info provided or page_range is empty"
-
-    temp_image = models.Image
-    query = temp_image.query(temp_image.streamName == stream_name).order(-temp_image.createdDate)
-    images = query.fetch(page_range)
-    if images is None:
+    temp_stream = models.Stream
+    # query = temp_stream.query(temp_stream.key == stream_id)
+    query = temp_stream.query()
+    stream = query.fetch()[0]
+    stream.images = ["demo1", "demo2", "demo3", "demo4", "demo5"]
+    if stream is None:
         return "Fail: No Stream matches name provided"
-    return json.dumps(images, len(images))
+    return stream
 
 
 def search_stream(string):
