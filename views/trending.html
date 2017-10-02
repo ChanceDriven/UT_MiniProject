@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connex.us Trending Page</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <h1>
+        Top 3 Trending Streams
+    </h1>
+    {% for stream in trending_streams %}
+    <div>
+        <p>stream.name</p>
+    </div>
+    {% endfor %}
+
+    <form>
+        <input type="checkbox" id="no_reports" name="reporting" value="No reports">
+        <input type="checkbox" id="five_min" name="reporting" value="Every 5 minutes">
+        <input type="checkbox" id="one_hour" name="reporting" value="Every 1 hour">
+        <input type="checkbox" id="one_day" name="reporting" value="Every day">
+
+        Email trending report
+        <input type="submit" value="Update Rate">
+
+    </form>
+</body>
+</html>

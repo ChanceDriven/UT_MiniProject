@@ -34,8 +34,10 @@ class LoginScreen(webapp2.RequestHandler):
 class StreamRest(webapp2.RequestHandler):
     def get(self):
         # all streams
-        all_streams = ndb.GqlQuery("select * from streams")
-        self.response.write(all_streams)
+        all_streams = services.get_all_streams()
+        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html')
+        self.response.write(template.render(streams=all_streams))
+
 
     def get(self, stream_id):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/stream.html')
@@ -46,9 +48,7 @@ class StreamRest(webapp2.RequestHandler):
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
         # change out with trending streams
-        all_streams = ndb.GqlQuery("select * from streams "
-                                   "where rownum < 11 "
-                                   "orderby views desc")
+
         self.response.write(all_streams)
 
 

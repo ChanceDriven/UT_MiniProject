@@ -28,3 +28,10 @@ class Image(ndb.Model):
         # put image into google, get url
         self.name = name
         self.content = data
+
+
+class StreamHits(ndb.Model):
+    #key should be the stream
+    #value should the hitTimestamp
+    # every time the stream is hit we should add an entry
+    # flush after an hour

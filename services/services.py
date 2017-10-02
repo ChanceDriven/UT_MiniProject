@@ -42,9 +42,9 @@ def get_all_streams():
     query = temp_stream.query().order(temp_stream.createdDate)
     all_streams = query.fetch()
 
-    list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
+    #list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
 
-    return json.dumps(list_streams)
+    return all_streams
 
 
 def get_stream(stream_id):
@@ -61,6 +61,14 @@ def get_stream(stream_id):
     if stream is None:
         return "Fail: No Stream matches name provided"
     return stream
+
+def get_trending_streams():
+    temp_stream = models.Stream
+    query = temp_stream.query('Streams with the highest hit rates in last hour').order(temp_stream.views)
+    trending_streams = query.fetch(3)
+    return trending_streams
+
+
 
 
 def search_stream(string):
