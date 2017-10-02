@@ -38,11 +38,12 @@ class StreamRest(webapp2.RequestHandler):
         json_streams = json.loads(all_streams)
         template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html').render(json_streams)
         self.response.write(template)
-        
+
     def get(self, stream_id):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/stream.html')
         stream = services.get_stream(stream_id)
         self.response.write(template.render(stream=stream, index=0, length=len(stream.images)))
+
 
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
@@ -74,11 +75,11 @@ class CreateStream(webapp2.RequestHandler):
     # the object and store it.
     def get(self):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/create_stream.html')
-        services.Service.create_stream("test", 5, "test2")
-        self.response.write(template)
+        self.response.write(template.render())
 
     def post(self):
         pass
+
 
 class Error(webapp2.RequestHandler):
     def get(self):
@@ -91,10 +92,10 @@ app = webapp2.WSGIApplication([
     (r'/login/?', LoginScreen),
     (r'/login/(\w+)', Login),  # I need to remove this one and just put in the post
     (r'/manage/?', Management),
-    (r'/streams', StreamRest),
-    (r'/streams/(\w+)', StreamRest),
-    (r'/create-stream', CreateStream),
-    (r'/streams/trending', StreamTrending),
+    (r'/streams/?', StreamRest),
+    (r'/streams/create/?', CreateStream),
+    (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
+    (r'/streams/(\w+)', StreamRest),
     (r'/error', Error)
 ], debug=True)
