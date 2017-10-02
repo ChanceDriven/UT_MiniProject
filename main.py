@@ -38,9 +38,9 @@ class StreamRest(webapp2.RequestHandler):
         self.response.write(all_streams)
 
     def get(self, stream_id):
-        stream = ndb.GqlQuery("select * from streams "
-                              "where id = :1", stream_id)
-        self.response.write(stream)
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/stream.html')
+        stream = services.get_stream(stream_id)
+        self.response.write(template.render(stream=stream, index=0, length=len(stream.images)))
 
 
 class StreamTrending(webapp2.RequestHandler):
