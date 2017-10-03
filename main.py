@@ -6,6 +6,7 @@ import jinja2
 import webapp2
 from services import services
 
+
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
@@ -29,6 +30,14 @@ class LoginScreen(webapp2.RequestHandler):
         # self.response.write(dir(ndb))
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/login.html')
         self.response.write(template.render())
+
+
+class AllStreams(webapp2.RequestHandler):
+    def get(self):
+        # all streams
+        all_streams = services.get_all_streams()
+        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html')
+        self.response.write(template.render(streams=all_streams))
 
 
 class StreamRest(webapp2.RequestHandler):
@@ -90,7 +99,7 @@ app = webapp2.WSGIApplication([
     (r'/login/?', LoginScreen),
     (r'/login/(\w+)', Login),  # I need to remove this one and just put in the post
     (r'/manage/?', Management),
-    (r'/streams', StreamRest),
+    (r'/streams', AllStreams),
     (r'/streams/(\w+)', StreamRest),
     (r'/create-stream', CreateStream),
     (r'/streams/trending', StreamTrending),
