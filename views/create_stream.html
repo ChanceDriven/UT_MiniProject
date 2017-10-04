@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-    <form>
-        <div>
-            <input type="text" name="streamname" value="">
-        </div>
-        <div>Name your stream</div>
-
-        <div>
-            <textarea rows="4" cols="50" name = "subscribers">
+{% include 'views/navbar.html' %}
+<form method="post">
+    <table>
+        <tr>
+            <td style="padding-right:30px">
+                <input type="text" name="streamname" value="">
+                <div>Name your stream</div>
+                <textarea rows="4" cols="50" name="subscribers"></textarea>
+                <br>
+                <textarea rows="4" cols="50" name="sub_message" placeholder="Optional message for invite"></textarea>
+                <br>
+                Add subscribers
+                <br>
+                <input type="submit" value="Create your stream">
+            </td>
+            <td>
+                <div>
+            <textarea rows="4" cols="50" name="tags">
 
             </textarea>
-        </div>
-        <div>Add subscribers</div>
+                </div>
+                <div>Tag your stream</div>
 
-        <br>
-        <div>
-            <textarea rows="4" cols="50" name = "tags">
+                <br>
 
-            </textarea>
-        </div>
-        <div>Tag your stream</div>
-
-        <br>
-
-        <div>
-            <input type="text" name="imageurl" value="">
-        </div>
-        <div>URL to cover image</div>
-        <br>
-
-        <input type="submit" value="Create your stream">
-    </form>
+                <div>
+                    <input type="text" name="imageurl" value="">
+                </div>
+                <div>URL to cover image</div>
+                <br>
+            </td>
+        </tr>
+    </table>
+</form>
 </body>
 </html>

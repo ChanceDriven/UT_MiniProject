@@ -1,7 +1,6 @@
 import os
-import json
-from google.appengine.ext import ndb
 
+import cgi
 import jinja2
 import webapp2
 from services import services
@@ -62,17 +61,9 @@ class StreamTrending(webapp2.RequestHandler):
 
 
 class StreamSearch(webapp2.RequestHandler):
-    def get(self):
-        # change out with trending streams
-        json_results = []
-        template = JINJA_ENVIRONMENT.get_or_select_template('./views/search.html')
-        self.response.write(template.render(results = json_results))
-
-    def post(self, search):
-        raw_results = services.search_stream(search)
-        json_results = json.loads(raw_results)
-        template = JINJA_ENVIRONMENT.get_or_select_template('./views/search.html')
-        self.response.write(template.render(results = json_results))
+    def get(self, query):
+        streams = services.search_stream(query)
+        self.response.write(streams)
 
 
 class Management(webapp2.RequestHandler):
@@ -88,11 +79,11 @@ class CreateStream(webapp2.RequestHandler):
     # the object and store it.
     def get(self):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/create_stream.html')
-        services.Service.create_stream("test", 5, "test2")
-        self.response.write(template)
+        self.response.write(template.render())
 
     def post(self):
-        pass
+        self.response.write(self.request.get('streamname'))
+
 
 class Error(webapp2.RequestHandler):
     def get(self):
@@ -106,10 +97,9 @@ app = webapp2.WSGIApplication([
     (r'/login/(\w+)', Login),  # I need to remove this one and just put in the post
     (r'/manage/?', Management),
     (r'/streams', AllStreams),
-    (r'/streams/(\w+)', StreamRest),
-    (r'/create-stream', CreateStream),
-    (r'/streams/trending', StreamTrending),
+    (r'/streams/create/?', CreateStream),
+    (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
-    (r'/search',StreamSearch),
+    (r'/streams/(\w+)', StreamRest),
     (r'/error', Error)
 ], debug=True)
