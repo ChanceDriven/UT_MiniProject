@@ -82,7 +82,13 @@ class CreateStream(webapp2.RequestHandler):
         self.response.write(template.render())
 
     def post(self):
-        self.response.write(self.request.get('streamname'))
+        subscribers = cgi.escape(self.request.get('subscribers')).split(',')
+        stream_name = cgi.escape(self.request.get('streamname'))
+        sub_message = cgi.escape(self.request.get('subscribers'))
+        tags = cgi.escape(self.request.get('subscribers')).split(',')
+        image_url = cgi.escape(self.request.get('imageurl'))
+        services.create_stream(stream_name, subscribers, image_url, tags, sub_message)
+        self.redirect('/manage')
 
 
 class Error(webapp2.RequestHandler):
