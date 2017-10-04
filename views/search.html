@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connex.us - Search</title>
+</head>
+<body>
+    {% include 'views/navbar.html' %}
+    <br>
+    <div id="search">
+        <form id="search_form">
+            <input type="text" name="search_field">
+            <br>
+            <input type="submit" value="Search">
+            <br>
+        </form>
+    </div>
+    <div id = "results">
+    {% if results.__len__() > 0 %}
+        {{len(results)}} for "value"
+    {% endif %}
+    {% for result in results %}
+        <div>
+            {{stream.name}}
+            <img src="{{stream.coverImgUrl}}" alt="{{stream.name}}">
+        </div>
+    {% endfor %}
+    </div>
+
+
+
+</body>
+</html>

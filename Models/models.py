@@ -6,16 +6,19 @@ class Stream(ndb.Model):
     author = ndb.StringProperty()
     coverImgUrl = ndb.StringProperty()
     createdDate = ndb.DateTimeProperty(auto_now_add=True)
-    views = ndb.IntegerProperty()
+    views = ndb.DateTimeProperty(repeated=True)
     subscribers = ndb.IntegerProperty()
     imgUrls = ndb.StringProperty(repeated=True)
+    rank = ndb.IntegerProperty()
 
-    def __init__(self, name="Stream1", subscribers=8, image_url="image.jpg", author=""):
+
+    def __init__(self, name="Stream1", subscribers=8, image_url="image.jpg", author="", rank=99):
         ndb.Model.__init__(self)
         self.name = name
         self.subscribers = subscribers
         self.coverImgUrl = image_url
         self.author = author
+        self.rank = rank
 
 
 class Image(ndb.Model):
@@ -28,3 +31,10 @@ class Image(ndb.Model):
         # put image into google, get url
         self.name = name
         self.content = data
+
+
+#class StreamHits(ndb.Model):
+    #key should be the stream
+    #value should the hitTimestamp
+    # every time the stream is hit we should add an entry
+    # flush after an hour

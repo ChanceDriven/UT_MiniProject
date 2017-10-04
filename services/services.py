@@ -1,4 +1,5 @@
 import json
+import datetime
 import re
 
 from Models import models
@@ -42,9 +43,9 @@ def get_all_streams():
     query = temp_stream.query().order(temp_stream.createdDate)
     all_streams = query.fetch()
 
-    list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
+    #list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
 
-    return json.dumps(list_streams)
+    return all_streams
 
 
 def get_stream(stream_id):
@@ -61,6 +62,60 @@ def get_stream(stream_id):
     if stream is None:
         return "Fail: No Stream matches name provided"
     return stream
+
+def get_trending_streams():
+    temp_stream = models.Stream
+    query = temp_stream.query().order(temp_stream.rank)
+    trending_streams = query.fetch(3)
+    return trending_streams
+
+def add_stream_visits(stream_name):
+    """
+
+    :param stream_name: name of the stream that was visited
+    :return: Return status code if update failed or succeeded
+    """
+    temp_stream = models.Stream
+    query = temp_stream.query(temp_stream.name==stream_name)
+    stream = query.get()
+    if stream is None:
+        return 400
+    else:
+        stream.views.append(datetime.datetime.now())
+        stream.put()
+        return 200
+
+
+def flush_views():
+    """
+    flushes the view count and resets the ranks to the stream
+    :return:
+    """
+    temp_stream = models.Stream
+    query = temp_stream.query()
+    all_streams = query.fetch()
+    if all_streams is None:
+        return 400
+    else:
+        for stream in all_streams:
+            temp_views = [ date | date in stream.views and date > (datetime.datetime.now() - datetime.timedelta(hours=1))]
+            stream.views = temp_views
+            stream.rank = 99
+            stream.put()
+
+
+def rank_streams():
+    temp_stream = models.Stream
+    # order by the number of views desc
+    query = temp_stream.query().order(-len(temp_stream.views).order(temp_stream.name))
+    top_streams_list = query.fetch(3)
+    if top_streams_list is None:
+        return 400
+
+    #iterate over list, the index will be set as the rank
+    for index, stream in enumerate(top_streams_list):
+        stream.rank = index
+        stream.put()
 
 
 def search_stream(string):

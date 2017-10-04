@@ -6,6 +6,7 @@ import jinja2
 import webapp2
 from services import services
 
+
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
@@ -31,13 +32,21 @@ class LoginScreen(webapp2.RequestHandler):
         self.response.write(template.render())
 
 
+class AllStreams(webapp2.RequestHandler):
+    def get(self):
+        # all streams
+        all_streams = services.get_all_streams()
+        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html')
+        self.response.write(template.render(streams=all_streams))
+
+
 class StreamRest(webapp2.RequestHandler):
     def get(self):
         # all streams
         all_streams = services.get_all_streams()
-        json_streams = json.loads(all_streams)
-        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html').render(json_streams)
-        self.response.write(template)
+        template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html')
+        self.response.write(template.render(streams=all_streams))
+
 
     def get(self, stream_id):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/stream.html')
@@ -48,9 +57,7 @@ class StreamRest(webapp2.RequestHandler):
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
         # change out with trending streams
-        all_streams = ndb.GqlQuery("select * from streams "
-                                   "where rownum < 11 "
-                                   "orderby views desc")
+
         self.response.write(all_streams)
 
 
@@ -92,7 +99,7 @@ app = webapp2.WSGIApplication([
     (r'/login/?', LoginScreen),
     (r'/login/(\w+)', Login),  # I need to remove this one and just put in the post
     (r'/manage/?', Management),
-    (r'/streams/?', StreamRest),
+    (r'/streams', AllStreams),
     (r'/streams/create/?', CreateStream),
     (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
