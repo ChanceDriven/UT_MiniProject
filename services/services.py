@@ -136,7 +136,7 @@ def search_stream(string):
                 break
                 # This limits the results to 5 at most
 
-    return json.dumps(find_list)
+    return find_list
 
 
 def upload_image(stream_id, data, name):

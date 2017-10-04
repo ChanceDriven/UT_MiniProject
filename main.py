@@ -63,10 +63,8 @@ class StreamTrending(webapp2.RequestHandler):
 
 class StreamSearch(webapp2.RequestHandler):
     def get(self, query):
-        # change out with trending streams
-        all_streams = ndb.GqlQuery("select * from streams "
-                                   "where name % :1 ", query)
-        self.response.write(all_streams)
+        streams = services.search_stream(query)
+        self.response.write(streams)
 
 
 class Management(webapp2.RequestHandler):
