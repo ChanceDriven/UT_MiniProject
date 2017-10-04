@@ -1,7 +1,6 @@
 import os
-import json
-from google.appengine.ext import ndb
 
+import cgi
 import jinja2
 import webapp2
 from services import services
@@ -83,7 +82,7 @@ class CreateStream(webapp2.RequestHandler):
         self.response.write(template.render())
 
     def post(self):
-        pass
+        self.response.write(self.request.get('streamname'))
 
 
 class Error(webapp2.RequestHandler):
