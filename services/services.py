@@ -63,11 +63,13 @@ def get_stream(stream_id):
         return "Fail: No Stream matches name provided"
     return stream
 
+
 def get_trending_streams():
     temp_stream = models.Stream
     query = temp_stream.query().order(temp_stream.rank)
     trending_streams = query.fetch(3)
     return trending_streams
+
 
 def add_stream_visits(stream_name):
     """
@@ -107,7 +109,7 @@ def flush_views():
 def rank_streams():
     temp_stream = models.Stream
     # order by the number of views desc
-    query = temp_stream.query().order(-len(temp_stream.views).order(temp_stream.name))
+    query = temp_stream.query().order(-temp_stream.view_count).order(temp_stream.name)
     top_streams_list = query.fetch(3)
     if top_streams_list is None:
         return 400

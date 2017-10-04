@@ -55,13 +55,15 @@ class StreamRest(webapp2.RequestHandler):
 
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
-        # change out with trending streams
+        trending_streams = []
+        trending_streams = services.get_trending_streams()
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/trending.html')
+        template.render(trending_streams=trending_streams)
 
-        self.response.write(all_streams)
 
 
 class StreamSearch(webapp2.RequestHandler):
-    def get(self, query):
+    def get(self):
         streams = services.search_stream(query)
         self.response.write(streams)
 
@@ -82,6 +84,7 @@ class CreateStream(webapp2.RequestHandler):
         self.response.write(template.render())
 
     def post(self):
+
         self.response.write(self.request.get('streamname'))
 
 
@@ -98,8 +101,8 @@ app = webapp2.WSGIApplication([
     (r'/manage/?', Management),
     (r'/streams', AllStreams),
     (r'/streams/create/?', CreateStream),
-    (r'/streams/trending/?', StreamTrending),
-    (r'/streams/search/(\w+)', StreamSearch),
+    (r'/streams/trending', StreamTrending),
+    (r'/search', StreamSearch),
     (r'/streams/(\w+)', StreamRest),
     (r'/error', Error)
 ], debug=True)

@@ -10,6 +10,7 @@ class Stream(ndb.Model):
     subscribers = ndb.IntegerProperty()
     imgUrls = ndb.StringProperty(repeated=True)
     rank = ndb.IntegerProperty()
+    view_count = ndb.ComputedProperty(lambda self: len(self.views))
 
 
     def __init__(self, name="Stream1", subscribers=8, image_url="image.jpg", author="", rank=99):
@@ -19,6 +20,7 @@ class Stream(ndb.Model):
         self.coverImgUrl = image_url
         self.author = author
         self.rank = rank
+        self.views = []
 
 
 class Image(ndb.Model):
