@@ -62,11 +62,17 @@ class StreamTrending(webapp2.RequestHandler):
 
 
 class StreamSearch(webapp2.RequestHandler):
-    def get(self, query):
+    def get(self):
         # change out with trending streams
-        all_streams = ndb.GqlQuery("select * from streams "
-                                   "where name % :1 ", query)
-        self.response.write(all_streams)
+        json_results = []
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/search.html')
+        self.response.write(template.render(results = json_results))
+
+    def post(self, search):
+        raw_results = services.search_stream(search)
+        json_results = json.loads(raw_results)
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/search.html')
+        self.response.write(template.render(results = json_results))
 
 
 class Management(webapp2.RequestHandler):
@@ -104,5 +110,6 @@ app = webapp2.WSGIApplication([
     (r'/create-stream', CreateStream),
     (r'/streams/trending', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
+    (r'/search',StreamSearch),
     (r'/error', Error)
 ], debug=True)
