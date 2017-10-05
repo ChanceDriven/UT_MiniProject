@@ -1,0 +1,9 @@
+cron:
+- description: calculate leaderboard
+  url: /calctrends
+  schedule: every 5 min
+
+- descripion: email digest
+  url: /emails
+  schedule: every 5 min
+
