@@ -55,15 +55,13 @@ class StreamRest(webapp2.RequestHandler):
 
 class StreamTrending(webapp2.RequestHandler):
     def get(self):
-        trending_streams = []
-        trending_streams = services.get_trending_streams()
-        template = JINJA_ENVIRONMENT.get_or_select_template('./views/trending.html')
-        template.render(trending_streams=trending_streams)
+        # change out with trending streams
 
+        self.response.write(all_streams)
 
 
 class StreamSearch(webapp2.RequestHandler):
-    def get(self):
+    def get(self, query):
         streams = services.search_stream(query)
         self.response.write(streams)
 
@@ -84,8 +82,13 @@ class CreateStream(webapp2.RequestHandler):
         self.response.write(template.render())
 
     def post(self):
-
-        self.response.write(self.request.get('streamname'))
+        subscribers = cgi.escape(self.request.get('subscribers')).split(',')
+        stream_name = cgi.escape(self.request.get('streamname'))
+        sub_message = cgi.escape(self.request.get('subscribers'))
+        tags = cgi.escape(self.request.get('subscribers')).split(',')
+        image_url = cgi.escape(self.request.get('imageurl'))
+        services.create_stream(stream_name, subscribers, image_url, tags, sub_message)
+        self.redirect('/manage')
 
 
 class Error(webapp2.RequestHandler):
@@ -101,8 +104,8 @@ app = webapp2.WSGIApplication([
     (r'/manage/?', Management),
     (r'/streams', AllStreams),
     (r'/streams/create/?', CreateStream),
-    (r'/streams/trending', StreamTrending),
-    (r'/search', StreamSearch),
+    (r'/streams/trending/?', StreamTrending),
+    (r'/streams/search/(\w+)', StreamSearch),
     (r'/streams/(\w+)', StreamRest),
     (r'/error', Error)
 ], debug=True)

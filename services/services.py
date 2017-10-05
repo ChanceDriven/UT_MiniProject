@@ -6,13 +6,15 @@ from Models import models
 from google.appengine.ext import ndb
 
 
-def create_stream(name, subscribers, image_url):
+def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs=""):
     """
 
     :return:
     :param name:
     :param subscribers:
     :param image_url:
+    :param tags:
+    :param message_to_subs:
     :return html:
 
     """
@@ -22,16 +24,15 @@ def create_stream(name, subscribers, image_url):
     new_stream.name = name
     new_stream.subscribers = subscribers
     new_stream.imgUrl = image_url
-    new_stream.put()
-    return 200
+    new_stream.tags = tags
+    return new_stream.put()
 
 
 def create_image(stream_name, image_url):
     new_image = models.Image(parent=ndb.Key("Stream", stream_name or "None"))
     new_image.streamName = stream_name
     new_image.imgUrl = image_url
-    key = new_image.put()
-    return key
+    return new_image.put()
 
 
 def get_all_streams():
