@@ -89,6 +89,20 @@ def add_stream_visits(stream_name):
         return 200
 
 
+def calculate_trends():
+    """
+
+    :return:
+    """
+    flush = flush_views()
+    rank = rank_streams()
+
+    if flush < 300 and rank < 300:
+        return 200
+    else:
+        return 400
+
+
 def flush_views():
     """
     flushes the view count and resets the ranks to the stream
@@ -105,6 +119,7 @@ def flush_views():
             stream.views = temp_views
             stream.rank = 99
             stream.put()
+        return 200
 
 
 def rank_streams():
@@ -119,6 +134,7 @@ def rank_streams():
     for index, stream in enumerate(top_streams_list):
         stream.rank = index
         stream.put()
+    return 200
 
 
 def search_stream(string):
@@ -165,3 +181,42 @@ def get_manage_streams(user_id):
             my_streams.append(stream)
             subscribed_streams.append(stream)
     return my_streams, subscribed_streams
+
+
+def update_email_frequency(reporting_values):
+    """
+
+    :param reporting_values: values of how often to send email digest
+    :return: returns the minimum reporting frequency of all the values
+    """
+    email_config = models.EmailConfig
+    min_report_freq = 0
+    query = email_config.query()
+    email_config = query.get()
+    if email_config is None:
+        email_config = models.EmailConfig()
+        email_config.reportFrequency = min_report_freq
+
+
+    else:
+        min_report_freq = min(reporting_values)
+        email_config.reportFrequency = int(min_report_freq)
+
+    email_config.put()
+
+    return min_report_freq
+
+
+def get_email_frequency():
+    """
+    Gets the email frequency setting for the page
+    :return: the minimum setting that was set by an admin.  If not set, it will return 0
+    """
+    query = models.EmailConfig.query()
+    email_config = query.get()
+
+    if email_config is None:
+        return 0
+
+    return email_config.reportFrequency
+
