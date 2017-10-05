@@ -46,7 +46,6 @@ class StreamRest(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_or_select_template('/views/all_streams.html')
         self.response.write(template.render(streams=all_streams))
 
-
     def get(self, stream_id):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/stream.html')
         stream = services.get_stream(stream_id)
@@ -96,6 +95,15 @@ class Error(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/error.html').render()
         self.response.write(template)
 
+class Image(webapp2.RequestHandler):
+    def post(self):
+        stream_key = 'test'
+        image = self.request.get('img')
+        comments = self.request.get('comments')
+        services.create_image(stream_key, comments, image)
+        self.redirect('/streams/' + stream_key)
+
+
 
 app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
@@ -107,5 +115,6 @@ app = webapp2.WSGIApplication([
     (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
     (r'/streams/(\w+)', StreamRest),
+    (r'/images', Image),
     (r'/error', Error)
 ], debug=True)

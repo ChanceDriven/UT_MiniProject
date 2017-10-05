@@ -17,12 +17,12 @@
         <button>More pictures</button>
     </div>
     <br><br>
-    <div style="border:1px solid #ccc;width:350px;">
-        <input type="text" style="margin:12px;width:75px" placeholder="File Name"/>
+    <form style="border:1px solid #ccc;width:350px;" enctype="multipart/form-data" method="post" action="/images">
+        <input type="file" style="margin:12px;width:75px" name="img" name="comments" placeholder="File Name"/>
         <input type="text" placeholder="Comments" style="margin:12px;"/>
-        <button type="button" style="margin:12px;">Upload file</button>
+        <button type="submit" style="margin:12px;">Upload file</button>
         <p style="display:inline;font-size:20px;padding:12px;">Add an Image</p>
-    </div>
+    </form>
     <button type="button" style="margin:12px;">Subscribe</button>
 </body>
 </html>

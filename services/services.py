@@ -28,11 +28,13 @@ def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs="
     return new_stream.put()
 
 
-def create_image(stream_name, image_url):
-    new_image = models.Image(parent=ndb.Key("Stream", stream_name or "None"))
-    new_image.streamName = stream_name
-    new_image.imgUrl = image_url
-    return new_image.put()
+def create_image(stream_id, comments, image):
+    new_image = models.Image(comments, image)
+    image_key = new_image.put()
+    stream = get_stream(stream_id)
+    stream.images = [] if stream.images is None else stream.images
+    stream.images.append(image_key)
+    stream.put()
 
 
 def get_all_streams():
@@ -140,17 +142,6 @@ def search_stream(string):
                 # This limits the results to 5 at most
 
     return find_list
-
-
-def upload_image(stream_id, data, name):
-    temp_stream = models.Stream
-    stream = temp_stream.query(temp_stream.key == stream_id).fetch()
-    if stream.imgUrls is None:
-        stream.imgUrls = []
-
-    new_image = models.Image(name, data)
-    img_key = new_image.put()
-    stream.imgUrls.append(img_key)
 
 
 def get_manage_streams(user_id):
