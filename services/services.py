@@ -1,6 +1,7 @@
 import json
 import datetime
 import re
+import logging
 
 from Models import models
 from google.appengine.ext import ndb
@@ -60,6 +61,7 @@ def get_stream(stream_id):
     query = temp_stream.query()
     stream = query.fetch()[0]
     stream.images = ["demo1", "demo2", "demo3", "demo4", "demo5"]
+    add_stream_visits(stream_id)
     if stream is None:
         return "Fail: No Stream matches name provided"
     return stream
@@ -78,13 +80,18 @@ def add_stream_visits(stream_name):
     :param stream_name: name of the stream that was visited
     :return: Return status code if update failed or succeeded
     """
+    views = []
     temp_stream = models.Stream
     query = temp_stream.query(temp_stream.name==stream_name)
     stream = query.get()
     if stream is None:
         return 400
     else:
+        if stream.views is None:
+            stream.views = views
+
         stream.views.append(datetime.datetime.now())
+        logging.info(stream.views)
         stream.put()
         return 200
 
@@ -115,10 +122,11 @@ def flush_views():
         return 400
     else:
         for stream in all_streams:
-            temp_views = [ date | date in stream.views and date > (datetime.datetime.now() - datetime.timedelta(hours=1))]
-            stream.views = temp_views
-            stream.rank = 99
-            stream.put()
+            if stream.view_count > 0:
+                temp_views = [x for x in stream.views if x > (datetime.datetime.now() - datetime.timedelta(hours=1))]
+                stream.views = temp_views
+                stream.rank = 99
+                stream.put()
         return 200
 
 
