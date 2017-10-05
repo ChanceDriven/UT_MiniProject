@@ -35,8 +35,10 @@ class Image(ndb.Model):
         self.content = data
 
 
-        # class StreamHits(ndb.Model):
-        # key should be the stream
-        # value should the hitTimestamp
-        # every time the stream is hit we should add an entry
-        # flush after an hour
+class EmailConfig(ndb.Model):
+    reportFrequency = ndb.IntegerProperty()
+
+    def __init__(self):
+        ndb.Model.__init__(self)
+        self.reportFrequency = 0
+
