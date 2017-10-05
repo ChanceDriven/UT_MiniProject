@@ -3,6 +3,7 @@ import os
 import cgi
 import jinja2
 import webapp2
+import logging
 from services import services
 
 
@@ -54,10 +55,25 @@ class StreamRest(webapp2.RequestHandler):
 
 
 class StreamTrending(webapp2.RequestHandler):
+    min_report_settings = 0
+
     def get(self):
         # change out with trending streams
+        trending_streams = []
+        trending_streams = services.get_trending_streams()
 
-        self.response.write(all_streams)
+        min_report_settings = services.get_email_frequency()
+        logging.info(min_report_settings)
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/trending.html')
+        self.response.write(template.render(trending_streams=trending_streams, report_settings = min_report_settings))
+
+    def post(self):
+        reportSettings = self.request.get_all('reporting')
+
+        min_report_Settings = services.update_email_frequency(reportSettings)
+        trending_streams = services.get_trending_streams()
+
+        self.redirect('/streams/trending')
 
 
 class StreamSearch(webapp2.RequestHandler):
@@ -91,6 +107,18 @@ class CreateStream(webapp2.RequestHandler):
         self.redirect('/manage')
 
 
+class CalculateTrends(webapp2.RequestHandler):
+    def get(self):
+        result = services.calculate_trends()
+        self.response.write(200)
+
+class SendMail(webapp2.RequestHandler):
+    def get(self):
+        trending_streams = services.get_trending_streams()
+
+
+
+
 class Error(webapp2.RequestHandler):
     def get(self):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/error.html').render()
@@ -107,5 +135,6 @@ app = webapp2.WSGIApplication([
     (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
     (r'/streams/(\w+)', StreamRest),
+    (r'/calctrends', CalculateTrends),
     (r'/error', Error)
 ], debug=True)
