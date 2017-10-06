@@ -1,6 +1,7 @@
 import json
 import datetime
 import re
+import logging
 
 from Models import models
 from google.appengine.ext import ndb
@@ -62,6 +63,7 @@ def get_stream(stream_id):
     query = temp_stream.query()
     stream = query.fetch()[0]
     stream.images = ["demo1", "demo2", "demo3", "demo4", "demo5"]
+    add_stream_visits(stream_id)
     if stream is None:
         return "Fail: No Stream matches name provided"
     return stream
@@ -80,15 +82,34 @@ def add_stream_visits(stream_name):
     :param stream_name: name of the stream that was visited
     :return: Return status code if update failed or succeeded
     """
+    views = []
     temp_stream = models.Stream
     query = temp_stream.query(temp_stream.name==stream_name)
     stream = query.get()
     if stream is None:
         return 400
     else:
+        if stream.views is None:
+            stream.views = views
+
         stream.views.append(datetime.datetime.now())
+        logging.info(stream.views)
         stream.put()
         return 200
+
+
+def calculate_trends():
+    """
+
+    :return:
+    """
+    flush = flush_views()
+    rank = rank_streams()
+
+    if flush < 300 and rank < 300:
+        return 200
+    else:
+        return 400
 
 
 def flush_views():
@@ -103,10 +124,12 @@ def flush_views():
         return 400
     else:
         for stream in all_streams:
-            temp_views = [ date | date in stream.views and date > (datetime.datetime.now() - datetime.timedelta(hours=1))]
-            stream.views = temp_views
-            stream.rank = 99
-            stream.put()
+            if stream.view_count > 0:
+                temp_views = [x for x in stream.views if x > (datetime.datetime.now() - datetime.timedelta(hours=1))]
+                stream.views = temp_views
+                stream.rank = 99
+                stream.put()
+        return 200
 
 
 def rank_streams():
@@ -121,6 +144,7 @@ def rank_streams():
     for index, stream in enumerate(top_streams_list):
         stream.rank = index
         stream.put()
+    return 200
 
 
 def search_stream(string):
@@ -156,3 +180,42 @@ def get_manage_streams(user_id):
             my_streams.append(stream)
             subscribed_streams.append(stream)
     return my_streams, subscribed_streams
+
+
+def update_email_frequency(reporting_values):
+    """
+
+    :param reporting_values: values of how often to send email digest
+    :return: returns the minimum reporting frequency of all the values
+    """
+    email_config = models.EmailConfig
+    min_report_freq = 0
+    query = email_config.query()
+    email_config = query.get()
+    if email_config is None:
+        email_config = models.EmailConfig()
+        email_config.reportFrequency = min_report_freq
+
+
+    else:
+        min_report_freq = min(reporting_values)
+        email_config.reportFrequency = int(min_report_freq)
+
+    email_config.put()
+
+    return min_report_freq
+
+
+def get_email_frequency():
+    """
+    Gets the email frequency setting for the page
+    :return: the minimum setting that was set by an admin.  If not set, it will return 0
+    """
+    query = models.EmailConfig.query()
+    email_config = query.get()
+
+    if email_config is None:
+        return 0
+
+    return email_config.reportFrequency
+
