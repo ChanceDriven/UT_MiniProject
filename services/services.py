@@ -187,6 +187,17 @@ def get_manage_streams(user_id):
     return all_streams, all_streams
 
 
+def get_stream_by_name(name):
+    temp_stream = models.Stream
+    streams = temp_stream.query(temp_stream.name == name).fetch()
+    logging.info("READ THIS")
+    logging.info(name)
+    logging.info(len(streams))
+    if streams:
+        return streams[0]
+    return None
+
+
 def update_email_frequency(reporting_values):
     """
 

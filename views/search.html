@@ -8,7 +8,7 @@
     {% include 'views/navbar.html' %}
     <br>
     <div id="search">
-        <form id="search_form">
+        <form id="search_form" >
             <input type="text" name="search_field">
             <br>
             <input type="submit" value="Search">
@@ -17,17 +17,14 @@
     </div>
     <div id = "results">
     {% if results.__len__() > 0 %}
-        {{len(results)}} for "value"
+        {{count}}
     {% endif %}
     {% for result in results %}
         <div>
-            {{stream.name}}
-            <img src="{{stream.coverImgUrl}}" alt="{{stream.name}}">
+            {{result.name}}
+            <img src="{{result.coverImgUrl}}" alt="{{result.name}}">
         </div>
     {% endfor %}
     </div>
-
-
-
 </body>
 </html>

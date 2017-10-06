@@ -77,9 +77,10 @@ class StreamTrending(webapp2.RequestHandler):
 
 
 class StreamSearch(webapp2.RequestHandler):
-    def get(self, query):
+    def get(self, query=""):
         streams = services.search_stream(query)
-        self.response.write(streams)
+        template = JINJA_ENVIRONMENT.get_or_select_template('./views/search.html')
+        self.response.write(template.render(results=streams, count=len(streams)))
 
 
 class Management(webapp2.RequestHandler):
@@ -103,6 +104,13 @@ class CreateStream(webapp2.RequestHandler):
         sub_message = cgi.escape(self.request.get('subscribers'))
         tags = cgi.escape(self.request.get('subscribers')).split(',')
         image_url = cgi.escape(self.request.get('imageurl'))
+
+        matching_stream = services.get_stream_by_name(stream_name)
+        logging.info(matching_stream)
+        if matching_stream is not None:
+            self.redirect('/error')
+            return
+
         services.create_stream(stream_name, subscribers, image_url, tags, sub_message)
         self.redirect('/manage')
 
@@ -162,7 +170,8 @@ app = webapp2.WSGIApplication([
     (r'/streams', AllStreams),
     (r'/streams/create/?', CreateStream),
     (r'/streams/trending/?', StreamTrending),
-    (r'/streams/search/(\w+)', StreamSearch),
+    (r'/streams/search/?', StreamSearch),
+    (r'/streams/search/(\w)', StreamSearch),
     (r'/streams/(\w+\-?\w*)', StreamRest),
     (r'/calctrends', CalculateTrends),
     (r'/images/(\w+\-?\w*)', ImgServe),
