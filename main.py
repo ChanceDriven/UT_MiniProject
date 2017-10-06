@@ -62,7 +62,7 @@ class StreamTrending(webapp2.RequestHandler):
         trending_streams = []
         trending_streams = services.get_trending_streams()
 
-        min_report_settings = services.get_email_frequency()
+        min_report_settings = services.get_email_config()
         logging.info(min_report_settings)
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/trending.html')
         self.response.write(template.render(trending_streams=trending_streams, report_settings = min_report_settings))
@@ -112,10 +112,21 @@ class CalculateTrends(webapp2.RequestHandler):
         result = services.calculate_trends()
         self.response.write(200)
 
+
 class SendMail(webapp2.RequestHandler):
     def get(self):
-        trending_streams = services.get_trending_streams()
 
+        emails = "ebsaibes@gmail.com,robbymrodriguez@gmail.com,ee382vta@gmail.com"
+
+        trending_streams = services.get_trending_streams()
+        email_config = services.get_email_config()
+
+
+        if email_config is None:
+            #don't send mail if nothing is returned
+            return
+        else:
+            result = services.send_mail(emails)
 
 
 
@@ -123,6 +134,7 @@ class Error(webapp2.RequestHandler):
     def get(self):
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/error.html').render()
         self.response.write(template)
+
 
 class Image(webapp2.RequestHandler):
     def post(self):
@@ -156,5 +168,6 @@ app = webapp2.WSGIApplication([
     (r'/images', Image),
     (r'/calctrends', CalculateTrends),
     (r'/images/(\w+)', ImgServe),
+    (r'/sendmail', SendMail),
     (r'/error', Error)
 ], debug=True)
