@@ -15,6 +15,7 @@ class Stream(ndb.Model):
     subscribers = ndb.StringProperty(repeated=True)
     rank = ndb.IntegerProperty()
     view_count = ndb.ComputedProperty(lambda self: len(self.views))
+    image_count = ndb.ComputedProperty(lambda self: len(self.images))
     tags = ndb.StringProperty(repeated=True)
     images = ndb.KeyProperty(repeated=True)
 

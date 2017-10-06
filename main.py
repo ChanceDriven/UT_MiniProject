@@ -1,5 +1,5 @@
 import os
-import mimetypes
+import logging
 
 import cgi
 import jinja2
@@ -136,22 +136,21 @@ class Error(webapp2.RequestHandler):
         self.response.write(template)
 
 
-class Image(webapp2.RequestHandler):
-    def post(self):
-        stream_key = 'test'
-        image = self.request.get('img')
-        comments = self.request.get('comments')
-        services.create_image(stream_key, comments, image)
-        self.redirect('/streams/' + stream_key)
-
 
 class ImgServe(webapp2.RequestHandler):
 
     def get(self, resource):
-
-        image = services.get_any_entity('Image', resource)
+        logging.info(resource)
+        image = services.get_any_entity(resource)
         self.response.headers[b'Content-Type'] = 'image/jpeg'
         self.response.write(image.content)
+
+    def post(self, stream_key):
+        image = self.request.get('img')
+        comments = self.request.get('comments')
+        services.create_image(stream_key, comments, image)
+        logging.info("STREAM KEY " + stream_key)
+        self.redirect('/streams/' + stream_key)
 
 
 
@@ -164,10 +163,9 @@ app = webapp2.WSGIApplication([
     (r'/streams/create/?', CreateStream),
     (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/(\w+)', StreamSearch),
-    (r'/streams/(\w+)', StreamRest),
-    (r'/images', Image),
+    (r'/streams/(\w+\-?\w*)', StreamRest),
     (r'/calctrends', CalculateTrends),
-    (r'/images/(\w+)', ImgServe),
+    (r'/images/(\w+\-?\w*)', ImgServe),
     (r'/sendmail', SendMail),
     (r'/error', Error)
 ], debug=True)

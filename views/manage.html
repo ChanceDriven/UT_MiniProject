@@ -7,26 +7,46 @@
 <body>
 {% include 'views/navbar.html' %}
 <h2>Streams I own</h2>
-<table></table>
-
-<h2>streams I subscribe to</h2>
 <table>
     <tr>
         <td style="border-right:1px solid #ccc;">Name</td>
         <td style="border-right:1px solid #ccc;">Last New Picture</td>
         <td style="border-right:1px solid #ccc;">Number of Pictures</td>
         <td style="border-right:1px solid #ccc;">Views</td>
-        <td style="border-right:1px solid #ccc;">Unsubscribe</td>
+        <td>Delete</td>
+    </tr>
+    {% for stream in authored_streams %}
+        <tr>
+            <td style="border-right:1px solid #ccc;"><a href="../streams/{{stream.key.urlsafe()}}">{{stream.name}}</a></td>
+            <td style="border-right:1px solid #ccc;">{{stream.date}}</td>
+            <td style="border-right:1px solid #ccc;">{{stream.image_count}}</td>
+            <td style="border-right:1px solid #ccc;">{{stream.view_count}}</td>
+            <td><input type="checkbox" /></td>
+        </tr>
+    {% endfor %}
+</table>
+<br>
+<button>Delete Checked Streams</button>
+<h2>Streams I subscribe to</h2>
+<table>
+    <tr>
+        <td style="border-right:1px solid #ccc;">Name</td>
+        <td style="border-right:1px solid #ccc;">Last New Picture</td>
+        <td style="border-right:1px solid #ccc;">Number of Pictures</td>
+        <td style="border-right:1px solid #ccc;">Views</td>
+        <td>Unsubscribe</td>
     </tr>
     {% for stream in subscribed_streams %}
         <tr>
             <td style="border-right:1px solid #ccc;">{{stream.name}}</td>
             <td style="border-right:1px solid #ccc;">{{stream.date}}</td>
-            <td style="border-right:1px solid #ccc;"></td>
-            <td style="border-right:1px solid #ccc;">{{stream.views}}</td>
-            <td style="border-right:1px solid #ccc;"><input type="checkbox" /></td>
+            <td style="border-right:1px solid #ccc;">{{stream.image_count}}</td>
+            <td style="border-right:1px solid #ccc;">{{stream.view_count}}</td>
+            <td><input type="checkbox" /></td>
         </tr>
     {% endfor %}
 </table>
+<br>
+<button>Unsubscribe Checked Streams</button>
 </body>
 </html>

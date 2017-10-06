@@ -34,7 +34,7 @@ def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs="
 def create_image(stream_id, comments, image):
     new_image = models.Image(comments, image)
     image_key = new_image.put()
-    stream = get_stream(stream_id)
+    stream = ndb.Key(urlsafe=stream_id).get()
     stream.images = [] if stream.images is None else stream.images
     stream.images.append(image_key)
     stream.put()
@@ -54,13 +54,8 @@ def get_all_streams():
     return all_streams
 
 
-def get_any_entity(entity_type, key):
-    logging.info("TEST ME")
-    logging.info(entity_type)
-    logging.info(key)
-    temp_image = models.Image("test")
-    # return temp_image.query(temp_image.key == ndb.Key(entity_type, key)).fetch()[0]
-    return temp_image.query().fetch()[0]
+def get_any_entity(urlsafe_key):
+    return ndb.Key(urlsafe=urlsafe_key).get()
 
 
 def get_stream(stream_id):
@@ -189,7 +184,7 @@ def get_manage_streams(user_id):
         if stream.author == user_id:
             my_streams.append(stream)
             subscribed_streams.append(stream)
-    return my_streams, subscribed_streams
+    return all_streams, all_streams
 
 
 def update_email_frequency(reporting_values):

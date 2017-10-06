@@ -10,15 +10,15 @@
     <div style="margin:20px;width:750px;display:inline;">
         <!--Images go here!-->
         {% for image in stream.images[index:3+index] %}
-            {{image}}
+            <img src="../images/{{image.urlsafe()}}" style="width:250px;">
         {% endfor %}
     </div>
     <div style="display:inline;margin:20px;">
         <button>More pictures</button>
     </div>
     <br><br>
-    <form style="border:1px solid #ccc;width:350px;" enctype="multipart/form-data" method="post" action="/images">
-        <input type="file" style="margin:12px;width:75px" name="img" name="comments" placeholder="File Name"/>
+    <form style="border:1px solid #ccc;width:350px;" enctype="multipart/form-data" method="post" action="/images/{{stream.key.urlsafe()}}">
+        <input type="file" style="margin:12px;width:90px" name="img" name="comments" placeholder="File Name"/>
         <input type="text" placeholder="Comments" style="margin:12px;"/>
         <button type="submit" style="margin:12px;">Upload file</button>
         <p style="display:inline;font-size:20px;padding:12px;">Add an Image</p>
