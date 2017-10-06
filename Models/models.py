@@ -1,3 +1,4 @@
+import datetime
 from google.appengine.ext import ndb
 
 
@@ -40,8 +41,9 @@ class Image(ndb.Model):
 
 class EmailConfig(ndb.Model):
     reportFrequency = ndb.IntegerProperty()
-
+    lastEmailSent = ndb.DateTimeProperty()
     def __init__(self):
         ndb.Model.__init__(self)
         self.reportFrequency = 0
+        self.lastEmailSent = datetime.datetime.now()
 

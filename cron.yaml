@@ -1,9 +1,9 @@
 cron:
 - description: calculate leaderboard
   url: /calctrends
-  schedule: every 5 min
+  schedule: every 5 minutes
 
-- descripion: email digest
-  url: /emails
-  schedule: every 5 min
+- description: email digest
+  url: /sendmail
+  schedule: every 5 minutes
 

@@ -2,9 +2,11 @@ import json
 import datetime
 import re
 import logging
+import os
 
 from Models import models
 from google.appengine.ext import ndb
+from google.appengine.api import mail
 
 
 def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs=""):
@@ -91,7 +93,7 @@ def add_stream_visits(key):
         if stream.views is None:
             stream.views = views
 
-        stream.views.append(str(datetime.datetime.now()))
+        stream.views.append(datetime.datetime.now())
         logging.info(str(stream.views))
         stream.put()
         return 200
@@ -205,7 +207,7 @@ def update_email_frequency(reporting_values):
     return min_report_freq
 
 
-def get_email_frequency():
+def get_email_config():
     """
     Gets the email frequency setting for the page
     :return: the minimum setting that was set by an admin.  If not set, it will return 0
@@ -214,7 +216,31 @@ def get_email_frequency():
     email_config = query.get()
 
     if email_config is None:
-        return 0
+        return None
 
-    return email_config.reportFrequency
+    return email_config
+
+
+def send_mail(emails):
+
+    email_config = get_email_config()
+    trending_streams = get_trending_streams()
+
+    if email_config is None:
+        return
+    else:
+        body = "The top 3 trending streams are: " + os.linesep
+        if len(trending_streams) < 0:
+            body += "There are no trending streams"
+        else:
+            streams = ""
+            for stream in trending_streams:
+                body += stream.name + " | " + str(stream.view_count) + " " + os.linesep
+
+        senders = "ebsaibes@gmail.com"
+        subject = "Team Cobalt: Email Digest"
+        to = emails
+        mail.send_mail(senders, to, subject, body)
+        email_config.lastEmailSent = datetime.datetime.now()
+        email_config.put()
 
