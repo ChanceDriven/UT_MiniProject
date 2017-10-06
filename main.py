@@ -16,7 +16,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 class HelloWebapp2(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello, webapp2!')
+        self.redirect('/login')
 
 
 class Login(webapp2.RequestHandler):

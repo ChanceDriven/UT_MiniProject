@@ -63,7 +63,7 @@ def get_stream(stream_id):
     query = temp_stream.query()
     stream = query.fetch()[0]
     stream.images = ["demo1", "demo2", "demo3", "demo4", "demo5"]
-    add_stream_visits(stream_id)
+    add_stream_visits(stream.key)
     if stream is None:
         return "Fail: No Stream matches name provided"
     return stream
@@ -76,15 +76,14 @@ def get_trending_streams():
     return trending_streams
 
 
-def add_stream_visits(stream_name):
+def add_stream_visits(key):
     """
-
-    :param stream_name: name of the stream that was visited
+    :param key: name of the stream that was visited
     :return: Return status code if update failed or succeeded
     """
     views = []
     temp_stream = models.Stream
-    query = temp_stream.query(temp_stream.name==stream_name)
+    query = temp_stream.query(temp_stream.key == key)
     stream = query.get()
     if stream is None:
         return 400
@@ -92,8 +91,8 @@ def add_stream_visits(stream_name):
         if stream.views is None:
             stream.views = views
 
-        stream.views.append(datetime.datetime.now())
-        logging.info(stream.views)
+        stream.views.append(str(datetime.datetime.now()))
+        logging.info(str(stream.views))
         stream.put()
         return 200
 
