@@ -47,7 +47,7 @@ def get_all_streams():
     query = temp_stream.query().order(temp_stream.createdDate)
     all_streams = query.fetch()
 
-    #list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
+    # list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
 
     return all_streams
 
@@ -62,7 +62,6 @@ def get_stream(stream_id):
     # query = temp_stream.query(temp_stream.key == stream_id)
     query = temp_stream.query()
     stream = query.fetch()[0]
-    stream.images = ["demo1", "demo2", "demo3", "demo4", "demo5"]
     add_stream_visits(stream.key)
     if stream is None:
         return "Fail: No Stream matches name provided"
@@ -91,8 +90,9 @@ def add_stream_visits(key):
         if stream.views is None:
             stream.views = views
 
-        stream.views.append(str(datetime.datetime.now()))
-        logging.info(str(stream.views))
+        stream.views.append(datetime.datetime.now())
+        logging.info(stream.views)
+        logging.info(str(stream))
         stream.put()
         return 200
 
@@ -139,7 +139,7 @@ def rank_streams():
     if top_streams_list is None:
         return 400
 
-    #iterate over list, the index will be set as the rank
+    # iterate over list, the index will be set as the rank
     for index, stream in enumerate(top_streams_list):
         stream.rank = index
         stream.put()
@@ -217,4 +217,3 @@ def get_email_frequency():
         return 0
 
     return email_config.reportFrequency
-

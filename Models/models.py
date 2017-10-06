@@ -1,9 +1,13 @@
 from google.appengine.ext import ndb
 
 
+class Author(ndb.Model):
+    name = ndb.StringProperty()
+
+
 class Stream(ndb.Model):
     name = ndb.StringProperty()
-    author = ndb.StringProperty()
+    author = ndb.KeyProperty()
     coverImgUrl = ndb.StringProperty()
     createdDate = ndb.DateTimeProperty(auto_now_add=True)
     views = ndb.DateTimeProperty(repeated=True)
@@ -11,19 +15,22 @@ class Stream(ndb.Model):
     rank = ndb.IntegerProperty()
     view_count = ndb.ComputedProperty(lambda self: len(self.views))
     tags = ndb.StringProperty(repeated=True)
-    images = ndb.StringProperty(repeated=True)
+    images = ndb.KeyProperty(repeated=True)
 
-    def __init__(self, name="Stream1", subscribers=[], image_url="image.jpg", author="", rank=99, tags=[]):
+    def __init__(self, name="Stream1", subscribers=[], image_url="image.jpg", author=None, rank=99, tags=[]):
         ndb.Model.__init__(self)
         self.name = name
         self.subscribers = subscribers
         self.coverImgUrl = image_url
-        self.author = author
         self.rank = rank
-        self.views = []
         self.views = []
         self.tags = tags
         self.images = []
+        example_author = Author()
+        self.author = example_author.put()
+
+    def __str__(self):
+        return self.name + '\t' + str(self.author)
 
 
 class Image(ndb.Model):
@@ -44,4 +51,3 @@ class EmailConfig(ndb.Model):
     def __init__(self):
         ndb.Model.__init__(self)
         self.reportFrequency = 0
-
