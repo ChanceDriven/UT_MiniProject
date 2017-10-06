@@ -1,4 +1,5 @@
 import os
+import mimetypes
 
 import cgi
 import jinja2
@@ -132,6 +133,15 @@ class Image(webapp2.RequestHandler):
         self.redirect('/streams/' + stream_key)
 
 
+class ImgServe(webapp2.RequestHandler):
+
+    def get(self, resource):
+
+        image = services.get_any_entity('Image', resource)
+        self.response.headers[b'Content-Type'] = 'image/jpeg'
+        self.response.write(image.content)
+
+
 
 app = webapp2.WSGIApplication([
     ('/', HelloWebapp2),
@@ -145,5 +155,6 @@ app = webapp2.WSGIApplication([
     (r'/streams/(\w+)', StreamRest),
     (r'/images', Image),
     (r'/calctrends', CalculateTrends),
+    (r'/images/(\w+)', ImgServe),
     (r'/error', Error)
 ], debug=True)

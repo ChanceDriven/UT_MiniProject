@@ -38,7 +38,7 @@ class Image(ndb.Model):
     updatedDate = createdDate = ndb.DateTimeProperty(auto_now_add=True)
     content = ndb.BlobProperty()
 
-    def __init__(self, comments, data=None):
+    def __init__(self, comments='', data=None):
         ndb.Model.__init__(self)
         # put image into google, get url
         self.comments = comments

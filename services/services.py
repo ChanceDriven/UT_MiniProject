@@ -52,6 +52,15 @@ def get_all_streams():
     return all_streams
 
 
+def get_any_entity(entity_type, key):
+    logging.info("TEST ME")
+    logging.info(entity_type)
+    logging.info(key)
+    temp_image = models.Image("test")
+    # return temp_image.query(temp_image.key == ndb.Key(entity_type, key)).fetch()[0]
+    return temp_image.query().fetch()[0]
+
+
 def get_stream(stream_id):
     """
     :param stream_id: the name of the stream

@@ -8,6 +8,7 @@ threadsafe: true
 handlers:
 - url: /.*
   script: main.app
+  application_readable: true
 - url: /login
   script: main.login
 
