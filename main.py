@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 
 import cgi
 import jinja2
@@ -76,6 +77,12 @@ class StreamTrending(webapp2.RequestHandler):
         self.redirect('/streams/trending')
 
 
+class StreamSearchSuggestions(webapp2.RequestHandler):
+    def get(self, query=""):
+        suggestions = services.get_search_suggestions(query)
+        return json.dumps(suggestions)
+
+
 class StreamSearch(webapp2.RequestHandler):
     def get(self, query=""):
         streams = services.search_stream(query)
@@ -144,7 +151,6 @@ class Error(webapp2.RequestHandler):
         self.response.write(template)
 
 
-
 class ImgServe(webapp2.RequestHandler):
 
     def get(self, resource):
@@ -172,6 +178,7 @@ app = webapp2.WSGIApplication([
     (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/?', StreamSearch),
     (r'/streams/search/(\w)', StreamSearch),
+    (r'/streams/search_test/(\w)', StreamSearchSuggestions),
     (r'/streams/(\w+\-?\w*)', StreamRest),
     (r'/calctrends', CalculateTrends),
     (r'/images/(\w+\-?\w*)', ImgServe),

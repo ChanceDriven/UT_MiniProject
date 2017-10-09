@@ -1,15 +1,45 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Connex.us - Search</title>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <style>
+        .ui-autocomplete-loading {
+            background: white url("images/ui-anim_basic_16x16.gif") right center no-repeat;
+        }
+    </style>
+    <script>
+        $(function(){
+            var cache = {};
+            var searchUrlSuggestion = "/streams/search_test/";
+            console.log($("#search_field"));
+            $("#search_field").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    var term = request.term;
+                    if (term in cache) {
+                        response(cache[term]);
+                        return;
+                    }
+
+                    $.getJSON(searchUrlSuggestion, request, function (data, status, xhr) {
+                        cache([term]);
+                        response(data);
+                    });
+                }
+            })
+        })
+    </script>
 </head>
 <body>
     {% include 'views/navbar.html' %}
     <br>
     <div id="search">
         <form id="search_form" >
-            <input type="text" name="search_field">
+            <input type="text" class="ui-widget" id="search_field" name="search_field">
             <br>
             <input type="submit" value="Search">
             <br>

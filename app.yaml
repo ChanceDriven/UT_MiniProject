@@ -1,5 +1,5 @@
-application: helloworld
-version: 1
+application: connexus
+version: 2
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -8,7 +8,6 @@ threadsafe: true
 handlers:
 - url: /.*
   script: main.app
-  application_readable: true
 - url: /login
   script: main.login
 

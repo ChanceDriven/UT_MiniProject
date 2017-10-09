@@ -152,6 +152,14 @@ def rank_streams():
     return 200
 
 
+
+def get_search_suggestions(searchstring):
+    streams = get_all_streams()
+    suggestions_name = [x for x in streams if searchstring in stream.name]
+    logging.info(suggestions_name)
+    return suggestions_name
+
+
 def search_stream(string):
     """
     :param string:
@@ -258,3 +266,6 @@ def send_mail(emails):
         mail.send_mail(senders, to, subject, body)
         email_config.lastEmailSent = datetime.datetime.now()
         email_config.put()
+
+
+
