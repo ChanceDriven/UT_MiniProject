@@ -154,8 +154,9 @@ def rank_streams():
 
 
 def get_search_suggestions(searchstring):
+    logging.info("search string was: " + searchstring)
     streams = get_all_streams()
-    suggestions_name = [x for x in streams if searchstring in stream.name]
+    suggestions_name = [x for x in streams if searchstring in x.name]
     logging.info(suggestions_name)
     return suggestions_name
 

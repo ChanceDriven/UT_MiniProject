@@ -79,7 +79,9 @@ class StreamTrending(webapp2.RequestHandler):
 
 class StreamSearchSuggestions(webapp2.RequestHandler):
     def get(self, query=""):
+        logging.info(query)
         suggestions = services.get_search_suggestions(query)
+        logging.info(json.dumps(suggestions))
         return json.dumps(suggestions)
 
 
@@ -178,7 +180,7 @@ app = webapp2.WSGIApplication([
     (r'/streams/trending/?', StreamTrending),
     (r'/streams/search/?', StreamSearch),
     (r'/streams/search/(\w)', StreamSearch),
-    (r'/streams/search_test/(\w)', StreamSearchSuggestions),
+    (r'/streams/search_suggestions/(\w)', StreamSearchSuggestions),
     (r'/streams/(\w+\-?\w*)', StreamRest),
     (r'/calctrends', CalculateTrends),
     (r'/images/(\w+\-?\w*)', ImgServe),
