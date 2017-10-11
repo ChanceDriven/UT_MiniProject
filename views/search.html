@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Connex.us - Search</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <style>
-        .ui-autocomplete-loading {
-            background: white url("./content/ui-anim_basic_16x16.gif") right center no-repeat;
-        }
-    </style>
+  <style>
+  .ui-autocomplete-loading {
+    background: white url("images/ui-anim_basic_16x16.gif") right center no-repeat;
+  }
+  .ui-autocomplete{
+      z-index: 1001;
+  }
+  </style>
     <script>
         $(function(){
             var cache = {};
@@ -26,12 +30,12 @@
                     }
 
                     $.getJSON(searchUrlSuggestion, request, function (data, status, xhr) {
-                        cache([term]);
+                        cache[term] = data;
                         response(data);
                     });
                 }
-            })
-        })
+            });
+        });
     </script>
 </head>
 <body>
@@ -39,7 +43,11 @@
     <br>
     <div id="search">
         <form id="search_form" >
-            <input type="text" class="ui-widget" id="search_field" name="search_field">
+            <div class="ui-widget">
+                <label for="search_field"></label>
+                <input type="text" id="search_field" name="search_field">
+            </div>
+
             <br>
             <input type="submit" value="Search">
             <br>

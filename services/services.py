@@ -97,8 +97,8 @@ def add_stream_visits(key):
             stream.views = views
 
         stream.views.append(datetime.datetime.now())
-        logging.info(stream.views)
-        logging.info(str(stream))
+        # logging.info(stream.views)
+        # logging.info(str(stream))
         stream.put()
         return 200
 
@@ -152,11 +152,23 @@ def rank_streams():
     return 200
 
 
-
 def get_search_suggestions(searchstring):
     logging.info("search string was: " + searchstring)
     streams = get_all_streams()
-    suggestions_name = [x for x in streams if searchstring in x.name]
+    list_of_suggestions = []
+
+    #first check the names of the streams
+    #suggestions_by_name = [x for x in streams if searchstring in x.name ]
+    #temp_names = [y.name for y in suggestions_by_name]
+    #temp_tags = [stream.tags for stream in suggestions_by_name]
+
+    #list_of_suggestions.append[temp_names]
+    #list_of_suggestions.append[temp_tags]
+
+    suggestions_by_tags = []
+
+
+
     logging.info(suggestions_name)
     return suggestions_name
 
