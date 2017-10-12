@@ -30,128 +30,6 @@
     background: green;
 }
 </style>
-    <script>
-    $(document).bind('drop dragover', function (e) {
-    // Prevent the default browser drop action:
-    e.preventDefault();
-});
-$(document).bind('drop', function (e) {
-    var url = $(e.originalEvent.dataTransfer.getData('text/html')).filter('img').attr('src');
-    if (url) {
-        $.getImageData({
-            url: url,
-            success: function (img) {
-                var canvas = document.createElement('canvas');
-		canvas.width = img.width;
-		canvas.height = img.height;
-                if (canvas.getContext && canvas.toBlob) {
-                    canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
-                    canvas.toBlob(function (blob) {
-                        $('#fileupload').fileupload('add', {files: [blob]});
-                    }, "image/jpeg");
-                }
-            }
-        });
-    }
-});
-$(function () {
-    $('#fileupload').fileupload({
-        dataType: 'json',
-        done: function (e, data) {
-            $.each(data.result.files, function (index, file) {
-                $('<p/>').text(file.name).appendTo(document.body);
-            });
-        }
-    });
-});
-$('#fileupload').fileupload({
-    /* ... */
-    progressall: function (e, data) {
-        var progress = parseInt(data.loaded / data.total * 100, 10);
-        $('#progress .bar').css(
-            'width',
-            progress + '%'
-        );
-    }
-});
-$(function () {
-    $('#fileupload').fileupload({
-        dataType: 'json',
-        add: function (e, data) {
-            data.context = $('<button/>').text('Upload')
-                .appendTo(document.body)
-                .click(function () {
-                    data.context = $('<p/>').text('Uploading...').replaceAll($(this));
-                    data.submit();
-                });
-        },
-        done: function (e, data) {
-            data.context.text('Upload finished.');
-        }
-    });
-});
-$('#upload').fileupload({
-
-  // This function is called when a file is added to the queue
-  add: function (e, data) {
-    //This area will contain file list and progress information.
-    var tpl = $('<li class="working">'+
-                '<input type="text" value="0" data-width="48" data-height="48" data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" />'+
-                '<p></p><span></span></li>' );
-
-    // Append the file name and file size
-    tpl.find('p').text(data.files[0].name)
-                 .append('<i>' + formatFileSize(data.files[0].size) + '</i>');
-
-    // Add the HTML to the UL element
-    data.context = tpl.appendTo(ul);
-
-    // Initialize the knob plugin. This part can be ignored, if you are showing progress in some other way.
-    tpl.find('input').knob();
-
-    // Listen for clicks on the cancel icon
-    tpl.find('span').click(function(){
-      if(tpl.hasClass('working')){
-              jqXHR.abort();
-      }
-      tpl.fadeOut(function(){
-              tpl.remove();
-      });
-    });
-
-    // Automatically upload the file once it is added to the queue
-    var jqXHR = data.submit();
-  },
-  progress: function(e, data){
-
-        // Calculate the completion percentage of the upload
-        var progress = parseInt(data.loaded / data.total * 100, 10);
-
-        // Update the hidden input field and trigger a change
-        // so that the jQuery knob plugin knows to update the dial
-        data.context.find('input').val(progress).change();
-
-        if(progress == 100){
-            data.context.removeClass('working');
-        }
-    }
-});
-//Helper function for calculation of progress
-function formatFileSize(bytes) {
-    if (typeof bytes !== 'number') {
-        return '';
-    }
-
-    if (bytes >= 1000000000) {
-        return (bytes / 1000000000).toFixed(2) + ' GB';
-    }
-
-    if (bytes >= 1000000) {
-        return (bytes / 1000000).toFixed(2) + ' MB';
-    }
-    return (bytes / 1000).toFixed(2) + ' KB';
-}
-</script>
 </head>
 <body>
 {% include 'views/navbar.html' %}
@@ -168,7 +46,6 @@ function formatFileSize(bytes) {
     </div>
     <br><br>
     <form id="fileupload" action="/images/{{stream.key.urlsafe()}}" method="POST" enctype="multipart/form-data">
-        <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
         <div class="row fileupload-buttonbar">
             <div class="col-lg-7">
                 <!-- The fileinput-button span is used to style the file input field as button -->
@@ -189,7 +66,6 @@ function formatFileSize(bytes) {
                     <i class="glyphicon glyphicon-trash"></i>
                     <span>Delete</span>
                 </button>
-                <input type="checkbox" class="toggle">
                 <!-- The global file processing state -->
                 <span class="fileupload-process"></span>
             </div>
@@ -206,5 +82,134 @@ function formatFileSize(bytes) {
         <!-- The table listing the files available for upload/download -->
         <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
     </form>
+<!-- The template to display files available for upload -->
+{% include 'views/scripts.html' %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="../js/vendor/jquery.ui.widget.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+<!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="../js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="../js/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script src="../js/jquery.fileupload-process.js"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="../js/jquery.fileupload-image.js"></script>
+<!-- The File Upload audio preview plugin -->
+<script src="../js/jquery.fileupload-audio.js"></script>
+<!-- The File Upload video preview plugin -->
+<script src="../js/jquery.fileupload-video.js"></script>
+<!-- The File Upload validation plugin -->
+<script src="../js/jquery.fileupload-validate.js"></script>
+
+<script>
+/*jslint unparam: true, regexp: true */
+/*global window, $ */
+$(function () {
+    'use strict';
+    // Change this to the location of your server-side upload handler:
+    var url = window.location.hostname === 'blueimp.github.io' ?
+                '//jquery-file-upload.appspot.com/' : 'server/php/',
+        uploadButton = $('<button/>')
+            .addClass('btn btn-primary')
+            .prop('disabled', true)
+            .text('Processing...')
+            .on('click', function () {
+                var $this = $(this),
+                    data = $this.data();
+                $this
+                    .off('click')
+                    .text('Abort')
+                    .on('click', function () {
+                        $this.remove();
+                        data.abort();
+                    });
+                data.submit().always(function () {
+                    $this.remove();
+                });
+            });
+    $('#fileupload').fileupload({
+        url: url,
+        dataType: 'json',
+        autoUpload: false,
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+        maxFileSize: 999000,
+        // Enable image resizing, except for Android and Opera,
+        // which actually support image resizing, but fail to
+        // send Blob objects via XHR requests:
+        disableImageResize: /Android(?!.*Chrome)|Opera/
+            .test(window.navigator.userAgent),
+        previewMaxWidth: 100,
+        previewMaxHeight: 100,
+        previewCrop: true
+    }).on('fileuploadadd', function (e, data) {
+        data.context = $('<div/>').appendTo('#files');
+        $.each(data.files, function (index, file) {
+            var node = $('<p/>')
+                    .append($('<span/>').text(file.name));
+            if (!index) {
+                node
+                    .append('<br>')
+                    .append(uploadButton.clone(true).data(data));
+            }
+            node.appendTo(data.context);
+        });
+    }).on('fileuploadprocessalways', function (e, data) {
+        var index = data.index,
+            file = data.files[index],
+            node = $(data.context.children()[index]);
+        if (file.preview) {
+            node
+                .prepend('<br>')
+                .prepend(file.preview);
+        }
+        if (file.error) {
+            node
+                .append('<br>')
+                .append($('<span class="text-danger"/>').text(file.error));
+        }
+        if (index + 1 === data.files.length) {
+            data.context.find('button')
+                .text('Upload')
+                .prop('disabled', !!data.files.error);
+        }
+    }).on('fileuploadprogressall', function (e, data) {
+        var progress = parseInt(data.loaded / data.total * 100, 10);
+        $('#progress .progress-bar').css(
+            'width',
+            progress + '%'
+        );
+    }).on('fileuploaddone', function (e, data) {
+        $.each(data.result.files, function (index, file) {
+            if (file.url) {
+                var link = $('<a>')
+                    .attr('target', '_blank')
+                    .prop('href', file.url);
+                $(data.context.children()[index])
+                    .wrap(link);
+            } else if (file.error) {
+                var error = $('<span class="text-danger"/>').text(file.error);
+                $(data.context.children()[index])
+                    .append('<br>')
+                    .append(error);
+            }
+        });
+    }).on('fileuploadfail', function (e, data) {
+        $.each(data.files, function (index) {
+            var error = $('<span class="text-danger"/>').text('File upload failed.');
+            $(data.context.children()[index])
+                .append('<br>')
+                .append(error);
+        });
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+});
+</script>
 </body>
 </html>
