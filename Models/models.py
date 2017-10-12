@@ -27,12 +27,11 @@ class Stream(ndb.Model):
         self.rank = rank
         self.views = []
         self.tags = tags
-        self.images = []
         example_author = Author()
         self.author = example_author.put()
 
     def __str__(self):
-        return self.name + '\t' + str(self.author)
+        return self.name + '\t' + str(self.author) + '\nImages: ' + str(self.images)
 
 
 class Image(ndb.Model):
