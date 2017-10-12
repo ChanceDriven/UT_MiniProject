@@ -1,11 +1,30 @@
 import os
 import logging
 
+from google.appengine.api import images
 import cgi
 import jinja2
 import webapp2
 import logging
+import urllib
+import re
+import json
 from services import services
+
+
+WEBSITE = 'https://blueimp.github.io/jQuery-File-Upload/'
+MIN_FILE_SIZE = 1  # bytes
+# Max file size is memcache limit (1MB) minus key size minus overhead:
+MAX_FILE_SIZE = 999000  # bytes
+IMAGE_TYPES = re.compile('image/(gif|p?jpeg|(x-)?png)')
+ACCEPT_FILE_TYPES = IMAGE_TYPES
+THUMB_MAX_WIDTH = 80
+THUMB_MAX_HEIGHT = 80
+THUMB_SUFFIX = '.'+str(THUMB_MAX_WIDTH)+'x'+str(THUMB_MAX_HEIGHT)+'.png'
+EXPIRATION_TIME = 300  # seconds
+# If set to None, only allow redirects to the referer protocol+host.
+# Set to a regexp for custom pattern matching against the redirect value:
+REDIRECT_ALLOW_TARGET = None
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -144,8 +163,83 @@ class Error(webapp2.RequestHandler):
         self.response.write(template)
 
 
+class CORSHandler(webapp2.RequestHandler):
+    def cors(self):
+        headers = self.response.headers
+        headers['Access-Control-Allow-Origin'] = '*'
+        headers['Access-Control-Allow-Methods'] =\
+            'OPTIONS, HEAD, GET, POST, DELETE'
+        headers['Access-Control-Allow-Headers'] =\
+            'Content-Type, Content-Range, Content-Disposition'
 
-class ImgServe(webapp2.RequestHandler):
+    def initialize(self, request, response):
+        super(CORSHandler, self).initialize(request, response)
+        self.cors()
+
+    def json_stringify(self, obj):
+        return json.dumps(obj, separators=(',', ':'))
+
+    def options(self, *args, **kwargs):
+        pass
+
+
+class UploadHandler(CORSHandler):
+    def validate(self, file):
+        if file['size'] < MIN_FILE_SIZE:
+            logging.info("SKIPPING FOR FILE TOO SMALL")
+            file['error'] = 'File is too small'
+        elif file['size'] > MAX_FILE_SIZE:
+            logging.info("SKIPPING FOR FILE TOO BIG")
+            file['error'] = 'File is too big'
+        elif not ACCEPT_FILE_TYPES.match(file['type']):
+            logging.info("SKIPPING FOR FILE TYPE")
+            file['error'] = 'Filetype not allowed'
+        else:
+            return True
+        return False
+
+    def validate_redirect(self, redirect):
+        if redirect:
+            if REDIRECT_ALLOW_TARGET:
+                return REDIRECT_ALLOW_TARGET.match(redirect)
+            referer = self.request.headers['referer']
+            if referer:
+                from urlparse import urlparse
+                parts = urlparse(referer)
+                redirect_allow_target = '^' + re.escape(
+                    parts.scheme + '://' + parts.netloc + '/'
+                )
+            return re.match(redirect_allow_target, redirect)
+        return False
+
+    def get_file_size(self, file):
+        file.seek(0, 2)  # Seek to the end of the file
+        size = file.tell()  # Get the position of EOF
+        file.seek(0)  # Reset the file position to the beginning
+        return size
+
+    def handle_upload(self, stream_key):
+        items = self.request.POST.items()
+        logging.info(items)
+        logging.info(str(len(items)))
+        for name, fieldStorage in items:
+            if type(fieldStorage) is unicode:
+                logging.info("UNICODE")
+                continue
+            result = {}
+            result['name'] = urllib.unquote(fieldStorage.filename)
+            result['type'] = fieldStorage.type
+            result['size'] = self.get_file_size(fieldStorage.file)
+            logging.info("before validate")
+            if self.validate(result):
+                logging.info("after validate")
+                services.create_image(stream_key, fieldStorage.file)
+                logging.info("after save")
+
+        self.redirect('/streams/' + stream_key)
+
+    def head(self):
+        pass
 
     def get(self, resource):
         logging.info(resource)
@@ -154,11 +248,41 @@ class ImgServe(webapp2.RequestHandler):
         self.response.write(image.content)
 
     def post(self, stream_key):
-        image = self.request.get('img')
-        comments = self.request.get('comments')
-        services.create_image(stream_key, comments, image)
-        logging.info("STREAM KEY " + stream_key)
-        self.redirect('/streams/' + stream_key)
+        logging.info("HEY I HIT THE POST")
+        if (self.request.get('_method') == 'DELETE'):
+            return self.delete()
+        result = {'files': self.handle_upload(stream_key)}
+        s = self.json_stringify(result)
+        redirect = self.request.get('redirect')
+        if self.validate_redirect(redirect):
+            return self.redirect(str(
+                redirect.replace('%s', urllib.quote(s, ''), 1)
+            ))
+        if 'application/json' in self.request.headers.get('Accept'):
+            self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(s)
+
+
+class FileHandler(CORSHandler):
+    def normalize(self, str):
+        return urllib.quote(urllib.unquote(str), '')
+
+    def get(self, resource):
+        logging.info(resource)
+        image = services.get_any_entity(resource)
+        self.response.headers[b'Content-Type'] = 'image/jpeg'
+        self.response.write(image.content)
+
+    def delete(self, content_type, data_hash, file_name):
+        content_type = self.normalize(content_type)
+        file_name = self.normalize(file_name)
+        key = content_type + '/' + data_hash + '/' + file_name
+        content_type = urllib.unquote(content_type)
+        if IMAGE_TYPES.match(content_type):
+            thumbnail_key = key + THUMB_SUFFIX
+        if 'application/json' in self.request.headers.get('Accept'):
+            self.response.headers['Content-Type'] = 'application/json'
+        self.response.write("erggg")
 
 
 
@@ -174,7 +298,7 @@ app = webapp2.WSGIApplication([
     (r'/streams/search/(\w)', StreamSearch),
     (r'/streams/(\w+\-?\w*)', StreamRest),
     (r'/calctrends', CalculateTrends),
-    (r'/images/(\w+\-?\w*)', ImgServe),
+    (r'/images/(\w+\-?\w*)', UploadHandler),
     (r'/sendmail', SendMail),
     (r'/error', Error)
 ], debug=True)
