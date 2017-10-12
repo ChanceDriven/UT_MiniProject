@@ -7,6 +7,9 @@ import os
 from Models import models
 from google.appengine.ext import ndb
 from google.appengine.api import mail
+from google.appengine.api import search
+
+_INDEX_NAME = "streams"
 
 
 def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs=""):
@@ -26,9 +29,50 @@ def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs="
     new_stream = models.Stream()
     new_stream.name = name
     new_stream.subscribers = subscribers
-    new_stream.imgUrl = image_url
+    new_stream.coverImgUrl = image_url
     new_stream.tags = tags
-    return new_stream.put()
+    key = new_stream.put()
+    add_to_stream_index(new_stream, key)
+    return key
+
+
+def add_to_stream_index(stream, key):
+    if stream:
+        search.Index(name = _INDEX_NAME).put(create_document(stream.name,stream.tags, str(key), stream.coverImgUrl))
+    return 200
+
+
+def create_document(stream_name, tags, key, coverImg):
+    sep = " "
+    tag_string = sep.join(tags) 
+
+    partial_suggestions = []
+    partial_suggestions.append(build_partials(stream_name))
+    partial_suggestions.append(build_partials(coverImg))
+    partial_suggestions.append(tag_string)
+    partials = ",".join(partial_suggestions)
+    logging.info(partials)
+    return search.Document(
+        fields = [search.TextField(name='stream_name', value=stream_name),
+                  search.TextField(name='tags', value = tag_string),
+                  search.TextField(name='key', value = key),
+                  search.TextField(name='coverImg', value = coverImg),
+                  search.TextField(name='suggestions', value = partials)])
+
+
+def build_partials(word):
+    """
+        reference is from here:Since search API can't search partials we need to create the partial words
+        https://stackoverflow.com/questions/10960384/google-app-engine-python-search-api-string-search
+    """
+    list_partials = []
+    for w in word.split():
+        string = ""
+        for letter in w:
+            string += letter
+            list_partials.append(string)
+
+    return " ".join(list_partials)
 
 
 def create_image(stream_id, comments, image):
@@ -171,6 +215,18 @@ def get_search_suggestions(searchstring):
 
     logging.info(suggestions_name)
     return suggestions_name
+
+
+def search_stream_using_api(string):
+
+    query = string
+    logging.info("searchString= " + query)
+    query_options = search.QueryOptions(limit = 5)
+
+    query_obj = search.Query(query_string=query, options=query_options)
+    results = search.Index(name=_INDEX_NAME).search(query=query_obj)
+    return results
+    print(results)
 
 
 def search_stream(string):
