@@ -7,3 +7,6 @@ cron:
   url: /sendmail
   schedule: every 5 minutes
 
+- description: rebuild the search index
+  url: /rebuildIndex
+  schedule: every 1 hour
