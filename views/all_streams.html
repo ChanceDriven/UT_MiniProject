@@ -13,7 +13,7 @@
         </h1>
         {% for stream in streams %}
         <div>
-            <p>{{stream.name}}</p>
+            <a href="../streams/{{stream.key.urlsafe()}}">{{stream.name}}</a>
             <img src="{{stream.coverImgUrl}}" >
         </div>
         {% endfor %}

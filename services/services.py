@@ -349,6 +349,7 @@ def send_mail(emails):
         email_config.lastEmailSent = datetime.datetime.now()
         email_config.put()
 
+
 def rebuild_search_index():
     streams  = get_all_streams()
     documents = []
