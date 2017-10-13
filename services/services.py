@@ -110,10 +110,7 @@ def get_stream(stream_id):
     :return: returns the stream
     """
 
-    temp_stream = models.Stream
-    # query = temp_stream.query(temp_stream.key == stream_id)
-    query = temp_stream.query()
-    stream = query.fetch()[0]
+    stream = ndb.Key(urlsafe=stream_id).get()
     add_stream_visits(stream.key)
     if stream is None:
         return "Fail: No Stream matches name provided"
