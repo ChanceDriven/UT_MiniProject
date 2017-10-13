@@ -59,7 +59,7 @@
     {% endif %}
     {% for result in results %}
         <div>
-            {{result.name}}
+            <a href="../streams/{{result.key.urlsafe()}}">{{result.name}}</a>
             <img src="{{result.coverImgUrl}}" alt="{{result.name}}">
         </div>
     {% endfor %}

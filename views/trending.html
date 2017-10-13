@@ -14,7 +14,7 @@
         <tr>
             <td>
                 {% for stream in trending_streams %}
-                    <p>{{stream.coverImgUrl}} | {{stream.name}}</p>
+                    <p>{{stream.coverImgUrl}} | <a href="../streams/{{stream.key.urlsafe()}}"> {{stream.name}}</a></p>
                 {% endfor %}
             </td>
 
