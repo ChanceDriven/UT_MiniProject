@@ -79,14 +79,9 @@ class StreamTrending(webapp2.RequestHandler):
 
 class StreamSearchSuggestions(webapp2.RequestHandler):
     def get(self, query=""):
-        term = self.request.get('term')
-        test_list = ["derp","test","fk"]
-        logging.info(term)
-        self.response.write(json.dumps(test_list))
-        #suggestions = services.get_search_suggestions(term)
-        #stream_names = json.
-        #self.response.write(suggestions.)
-        #return json.dumps(suggestions)
+        term = self.request.get('term')     
+        suggestions = services.get_search_suggestions(term)
+        self.response.write(json.dumps(suggestions))
 
 
 class StreamSearch(webapp2.RequestHandler):
@@ -157,6 +152,14 @@ class Error(webapp2.RequestHandler):
         self.response.write(template)
 
 
+class Rebuild(webapp2.RequestHandler):
+    def get(self):
+        logging.info("rebuilding index started")
+        services.delete_index()
+        services.rebuild_search_index()
+        self.response.write(200)
+
+
 class ImgServe(webapp2.RequestHandler):
 
     def get(self, resource):
@@ -189,5 +192,6 @@ app = webapp2.WSGIApplication([
     (r'/calctrends', CalculateTrends),
     (r'/images/(\w+\-?\w*)', ImgServe),
     (r'/sendmail', SendMail),
-    (r'/error', Error)
+    (r'/error', Error),
+    (r'/rebuildIndex',Rebuild)
 ], debug=True)

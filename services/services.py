@@ -38,11 +38,11 @@ def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs="
 
 def add_to_stream_index(stream, key):
     if stream:
-        search.Index(name = _INDEX_NAME).put(create_document(stream.name,stream.tags, str(key), stream.coverImgUrl))
+        search.Index(name = _INDEX_NAME).put(create_document(stream.name,stream.tags, str(key), stream.coverImgUrl, stream.rank))
     return 200
 
 
-def create_document(stream_name, tags, key, coverImg):
+def create_document(stream_name, tags, key, coverImg, rank):
     sep = " "
     tag_string = sep.join(tags) 
 
@@ -57,12 +57,14 @@ def create_document(stream_name, tags, key, coverImg):
                   search.TextField(name='tags', value = tag_string),
                   search.TextField(name='key', value = key),
                   search.TextField(name='coverImg', value = coverImg),
-                  search.TextField(name='suggestions', value = partials)])
+                  search.TextField(name='suggestions', value = partials),
+                  search.NumberField(name='rank',value = rank )])
 
 
 def build_partials(word):
     """
-        reference is from here:Since search API can't search partials we need to create the partial words
+        reference is from here:Since search API can't search partials we need to 
+        create the partial words
         https://stackoverflow.com/questions/10960384/google-app-engine-python-search-api-string-search
     """
     list_partials = []
@@ -198,23 +200,37 @@ def rank_streams():
 
 def get_search_suggestions(searchstring):
     logging.info("search string was: " + searchstring)
-    streams = get_all_streams()
-    list_of_suggestions = []
+    # get the search string
+    query= searchstring
+    #reg_ex = searchstring+ ".*"
+    reg_ex = re.compile(searchstring + ".*")
+    # create the query object
+    sort_expression = [search.SortExpression(expression='rank', 
+        direction = search.SortExpression.DESCENDING)]
+    sort_opt = search.SortOptions(expressions=sort_expression)
+    query_options = search.QueryOptions(limit = 20, sort_options=sort_opt)
+    query_obj = search.Query(query_string=query, options=query_options)
+    results = search.Index(name=_INDEX_NAME).search(query=query_obj)
 
-    #first check the names of the streams
-    #suggestions_by_name = [x for x in streams if searchstring in x.name ]
-    #temp_names = [y.name for y in suggestions_by_name]
-    #temp_tags = [stream.tags for stream in suggestions_by_name]
+    logging.info(results)
+    # we need to limit the suggestion to at 20 possible options
+    # sorted alphabetically
+    possibilities = []
+    temp_tags = []
+    for result in results:
+        for field in result.fields:
+            if field.name == "stream_name":
+                possibilities.append(field.value)
+            if field.name == "tags" and field.value is not None:
+                temp_tags = field.value.split(" ")
+                possibilities.extend(temp_tags)
+    
 
-    #list_of_suggestions.append[temp_names]
-    #list_of_suggestions.append[temp_tags]
-
-    suggestions_by_tags = []
-
-
-
-    logging.info(suggestions_name)
-    return suggestions_name
+    possibilities = [x for x in possibilities if x.startswith(searchstring)]
+    sorted_possibilities = sorted(possibilities)
+    
+    logging.info(sorted_possibilities)
+    return sorted_possibilities[:20]
 
 
 def search_stream_using_api(string):
@@ -336,5 +352,35 @@ def send_mail(emails):
         email_config.lastEmailSent = datetime.datetime.now()
         email_config.put()
 
+def rebuild_search_index():
+    streams  = get_all_streams()
+    documents = []
+    for stream in streams:
+        temp_doc = create_document(stream.name,stream.tags,str(stream.key),stream.coverImgUrl,stream.rank)
+        documents.append(temp_doc)
+    
+    index = search.Index(name = _INDEX_NAME).put(documents)
+    logging.info("index rebuilt")
 
 
+def delete_index():
+    # index.get_range by returns up to 100 documents at a time, so we must
+    # loop until we've deleted all items.
+    # https://cloud.google.com/appengine/docs/standard/python/search/
+    logging.info("index " + _INDEX_NAME + " deleted")
+    index = search.Index(name = _INDEX_NAME)
+
+    while True:
+        # Use ids_only to get the list of document IDs in the index without
+        # the overhead of getting the entire document.
+        document_ids = [
+            document.doc_id
+            for document
+            in index.get_range(ids_only=True)]
+
+        # If no IDs were returned, we've deleted everything.
+        if not document_ids:
+            break
+
+        # Delete the documents for the given IDs
+        index.delete(document_ids)
