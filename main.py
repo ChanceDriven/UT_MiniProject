@@ -114,8 +114,10 @@ class Management(webapp2.RequestHandler):
     def get(self):
         user_id = ""
         subscribed_streams, authored_streams = services.get_manage_streams(user_id)
-        template = JINJA_ENVIRONMENT.get_or_select_template('./views/manage.html')
-        self.response.write(template.render(subscribed_streams=subscribed_streams, authored_streams=authored_streams))
+        self.response.write({
+            'subscribed_streams': subscribed_streams,
+            'authored_streams': authored_streams
+        })
 
 
 class CreateStream(webapp2.RequestHandler):
@@ -138,14 +140,14 @@ class CreateStream(webapp2.RequestHandler):
             self.redirect('/error')
             return
 
-        services.create_stream(stream_name, subscribers, image_url, tags, sub_message)
-        self.redirect('/manage')
+        key = services.create_stream(stream_name, subscribers, image_url, tags, sub_message)
+        self.response.write(key)
 
 
 class CalculateTrends(webapp2.RequestHandler):
     def get(self):
-        result = services.calculate_trends()
-        self.response.write(200)
+        services.calculate_trends()
+        self.response.write()
 
 
 class SendMail(webapp2.RequestHandler):
