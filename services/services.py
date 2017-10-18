@@ -38,27 +38,28 @@ def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs="
 
 def add_to_stream_index(stream, key):
     if stream:
-        search.Index(name = _INDEX_NAME).put(create_document(stream.name,stream.tags, str(key), stream.coverImgUrl, stream.rank))
-    return 200
+        search.Index(name=_INDEX_NAME).put(create_document(stream.name,stream.tags,
+                                                           str(key), stream.coverImgUrl, stream.rank))
 
 
 def create_document(stream_name, tags, key, coverImg, rank):
     sep = " "
     tag_string = sep.join(tags) 
 
-    partial_suggestions = []
-    partial_suggestions.append(build_partials(stream_name))
-    partial_suggestions.append(build_partials(coverImg))
-    partial_suggestions.append(tag_string)
+    partial_suggestions = [
+        build_partials(stream_name),
+        build_partials(coverImg),
+        tag_string
+    ]
     partials = ",".join(partial_suggestions)
     logging.info(partials)
     return search.Document(
         fields = [search.TextField(name='stream_name', value=stream_name),
-                  search.TextField(name='tags', value = tag_string),
-                  search.TextField(name='key', value = key),
-                  search.TextField(name='coverImg', value = coverImg),
-                  search.TextField(name='suggestions', value = partials),
-                  search.NumberField(name='rank',value = rank )])
+                  search.TextField(name='tags', value=tag_string),
+                  search.TextField(name='key', value=key),
+                  search.TextField(name='coverImg', value=coverImg),
+                  search.TextField(name='suggestions', value=partials),
+                  search.NumberField(name='rank', value=rank )])
 
 
 def build_partials(word):
@@ -94,8 +95,6 @@ def get_all_streams():
     temp_stream = models.Stream
     query = temp_stream.query().order(temp_stream.createdDate)
     all_streams = query.fetch()
-
-    # list_streams = [{"name": stream.name, "coverImgUrl":stream.coverImgUrl} for stream in all_streams]
 
     return all_streams
 
@@ -134,16 +133,12 @@ def add_stream_visits(key):
     query = temp_stream.query(temp_stream.key == key)
     stream = query.get()
     if stream is None:
-        return 400
+        raise ValueError("Stream not found")
     else:
         if stream.views is None:
             stream.views = views
-
         stream.views.append(datetime.datetime.now())
-        # logging.info(stream.views)
-        # logging.info(str(stream))
         stream.put()
-        return 200
 
 
 def calculate_trends():
@@ -151,14 +146,8 @@ def calculate_trends():
 
     :return:
     """
-    flush = flush_views()
-    rank = rank_streams()
-
-    if flush < 300 and rank < 300:
-        return 200
-    else:
-        return 400
-
+    flush_views()
+    rank_streams()
 
 def flush_views():
     """
@@ -169,7 +158,7 @@ def flush_views():
     query = temp_stream.query()
     all_streams = query.fetch()
     if all_streams is None:
-        return 400
+        pass
     else:
         for stream in all_streams:
             if stream.view_count > 0:
@@ -177,7 +166,6 @@ def flush_views():
                 stream.views = temp_views
                 stream.rank = 99
                 stream.put()
-        return 200
 
 
 def rank_streams():
@@ -186,26 +174,24 @@ def rank_streams():
     query = temp_stream.query().order(-temp_stream.view_count).order(temp_stream.name)
     top_streams_list = query.fetch(3)
     if top_streams_list is None:
-        return 400
+        return
 
     # iterate over list, the index will be set as the rank
     for index, stream in enumerate(top_streams_list):
         stream.rank = index
         stream.put()
-    return 200
 
 
 def get_search_suggestions(searchstring):
     logging.info("search string was: " + searchstring)
     # get the search string
-    query= searchstring
-    #reg_ex = searchstring+ ".*"
-    reg_ex = re.compile(searchstring + ".*")
+    query = searchstring
+    # reg_ex = searchstring+ ".*"
     # create the query object
     sort_expression = [search.SortExpression(expression='rank', 
-        direction = search.SortExpression.DESCENDING)]
+                                             direction=search.SortExpression.DESCENDING)]
     sort_opt = search.SortOptions(expressions=sort_expression)
-    query_options = search.QueryOptions(limit = 20, sort_options=sort_opt)
+    query_options = search.QueryOptions(limit=20, sort_options=sort_opt)
     query_obj = search.Query(query_string=query, options=query_options)
     results = search.Index(name=_INDEX_NAME).search(query=query_obj)
 
@@ -213,7 +199,6 @@ def get_search_suggestions(searchstring):
     # we need to limit the suggestion to at 20 possible options
     # sorted alphabetically
     possibilities = []
-    temp_tags = []
     for result in results:
         for field in result.fields:
             if field.name == "stream_name":
@@ -221,7 +206,6 @@ def get_search_suggestions(searchstring):
             if field.name == "tags" and field.value is not None:
                 temp_tags = field.value.split(" ")
                 possibilities.extend(temp_tags)
-    
 
     possibilities = [x for x in possibilities if x.startswith(searchstring)]
     sorted_possibilities = sorted(possibilities)
@@ -231,7 +215,6 @@ def get_search_suggestions(searchstring):
 
 
 def search_stream_using_api(string):
-
     query = string
     logging.info("searchString= " + query)
     query_options = search.QueryOptions(limit = 5)
@@ -239,7 +222,6 @@ def search_stream_using_api(string):
     query_obj = search.Query(query_string=query, options=query_options)
     results = search.Index(name=_INDEX_NAME).search(query=query_obj)
     return results
-    print(results)
 
 
 def search_stream(string):
@@ -302,7 +284,6 @@ def update_email_frequency(reporting_values):
         email_config = models.EmailConfig()
         email_config.reportFrequency = min_report_freq
 
-
     else:
         min_report_freq = min(reporting_values)
         email_config.reportFrequency = int(min_report_freq)
@@ -320,9 +301,6 @@ def get_email_config():
     query = models.EmailConfig.query()
     email_config = query.get()
 
-    if email_config is None:
-        return None
-
     return email_config
 
 
@@ -338,7 +316,6 @@ def send_mail(emails):
         if len(trending_streams) < 0:
             body += "There are no trending streams"
         else:
-            streams = ""
             for stream in trending_streams:
                 body += stream.name + " | " + str(stream.view_count) + " " + os.linesep
 
@@ -351,13 +328,13 @@ def send_mail(emails):
 
 
 def rebuild_search_index():
-    streams  = get_all_streams()
+    streams = get_all_streams()
     documents = []
     for stream in streams:
-        temp_doc = create_document(stream.name,stream.tags,str(stream.key),stream.coverImgUrl,stream.rank)
+        temp_doc = create_document(stream.name, stream.tags, str(stream.key), stream.coverImgUrl, stream.rank)
         documents.append(temp_doc)
-    
-    index = search.Index(name = _INDEX_NAME).put(documents)
+
+    search.Index(name=_INDEX_NAME).put(documents)
     logging.info("index rebuilt")
 
 
@@ -366,7 +343,7 @@ def delete_index():
     # loop until we've deleted all items.
     # https://cloud.google.com/appengine/docs/standard/python/search/
     logging.info("index " + _INDEX_NAME + " deleted")
-    index = search.Index(name = _INDEX_NAME)
+    index = search.Index(name=_INDEX_NAME)
 
     while True:
         # Use ids_only to get the list of document IDs in the index without

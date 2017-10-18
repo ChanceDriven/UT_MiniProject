@@ -13,7 +13,6 @@ import json
 from Models import models
 from services import services
 
-
 WEBSITE = 'https://blueimp.github.io/jQuery-File-Upload/'
 MIN_FILE_SIZE = 1  # bytes
 # Max file size is memcache limit (1MB) minus key size minus overhead:
@@ -22,12 +21,11 @@ IMAGE_TYPES = re.compile('image/(gif|p?jpeg|(x-)?png)')
 ACCEPT_FILE_TYPES = IMAGE_TYPES
 THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
-THUMB_SUFFIX = '.'+str(THUMB_MAX_WIDTH)+'x'+str(THUMB_MAX_HEIGHT)+'.png'
+THUMB_SUFFIX = '.' + str(THUMB_MAX_WIDTH) + 'x' + str(THUMB_MAX_HEIGHT) + '.png'
 EXPIRATION_TIME = 300  # seconds
 # If set to None, only allow redirects to the referer protocol+host.
 # Set to a regexp for custom pattern matching against the redirect value:
 REDIRECT_ALLOW_TARGET = None
-
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -74,13 +72,16 @@ class StreamRest(webapp2.RequestHandler):
         stream = services.get_stream(stream_id)
         self.response.write(template.render(stream=stream, index=0, length=len(stream.images)))
 
-#Note: My idea was to create new handlers that would return JSON instead of trying to setup another file and stripping things out.
+
+# Note: My idea was to create new handlers that would return JSON
+# instead of trying to setup another file and stripping things out.
 class ApiStreamRest(webapp2.RequestHandler):
+    
     def get(self):
         all_streams = services.get_all_streams()
         streams_json = []
         for stream in all_streams:
-            streams_json.append(json.dumps(stream,cls=models.CustomEncoder))
+            streams_json.append(json.dumps(stream, cls=models.CustomEncoder))
 
         logging.info(json.dumps(streams_json))
 
@@ -90,13 +91,12 @@ class StreamTrending(webapp2.RequestHandler):
 
     def get(self):
         # change out with trending streams
-        trending_streams = []
         trending_streams = services.get_trending_streams()
 
         min_report_settings = services.get_email_config()
         logging.info(min_report_settings)
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/trending.html')
-        self.response.write(template.render(trending_streams=trending_streams, report_settings = min_report_settings))
+        self.response.write(template.render(trending_streams=trending_streams, report_settings=min_report_settings))
 
     def post(self):
         reportSettings = self.request.get_all('reporting')
@@ -112,22 +112,20 @@ class ApiStreamTrending(webapp2.RequestHandler):
 
     def get(self):
         # change out with trending streams
-        trending_streams = []
-        trending_streams_json=[]
+        trending_streams_json = []
         trending_streams = services.get_trending_streams()
 
         min_report_settings = services.get_email_config()
         logging.info(min_report_settings)
         for stream in trending_streams:
             trending_streams_json.append(json.dumps(stream, cls=models.CustomEncoder))
-            logging.info(json.dumps(stream))    
-        
-        ret_trend_settings = {'trending_streams':trending_streams, "min_report_settings":min_report_settings}
+            logging.info(json.dumps(stream))
+
+        ret_trend_settings = {'trending_streams': trending_streams, "min_report_settings": min_report_settings}
         logging.info(ret_trend_settings)
         streams_json = json.dumps(ret_trend_settings, indent=4, cls=models.CustomEncoder)
         logging.info(streams_json)
         self.response.write(json.dumps(streams_json))
-
 
     def post(self):
         reportSettings = self.request.get_all('reporting')
@@ -138,10 +136,9 @@ class ApiStreamTrending(webapp2.RequestHandler):
         self.redirect('/streams/trending')
 
 
-
 class StreamSearchSuggestions(webapp2.RequestHandler):
-    def get(self, query=""):
-        term = self.request.get('term')     
+    def get(self):
+        term = self.request.get('term')
         suggestions = services.get_search_suggestions(term)
         self.response.write(json.dumps(suggestions))
 
@@ -201,16 +198,17 @@ class SendMail(webapp2.RequestHandler):
         trending_streams = services.get_trending_streams()
         email_config = services.get_email_config()
 
-
         if email_config is None:
-            #don't send mail if nothing is returned
-            return
+            # don't send mail if nothing is returned
+            pass
         else:
-            result = services.send_mail(emails)
+            services.send_mail(emails)
+        self.response.write()
 
 
 class Error(webapp2.RequestHandler):
     def get(self):
+        # TODO: Not sure what to do with this
         template = JINJA_ENVIRONMENT.get_or_select_template('./views/error.html').render()
         self.response.write(template)
 
@@ -220,16 +218,16 @@ class Rebuild(webapp2.RequestHandler):
         logging.info("rebuilding index started")
         services.delete_index()
         services.rebuild_search_index()
-        self.response.write(200)
+        self.response.write()
 
 
 class CORSHandler(webapp2.RequestHandler):
     def cors(self):
         headers = self.response.headers
         headers['Access-Control-Allow-Origin'] = '*'
-        headers['Access-Control-Allow-Methods'] =\
+        headers['Access-Control-Allow-Methods'] = \
             'OPTIONS, HEAD, GET, POST, DELETE'
-        headers['Access-Control-Allow-Headers'] =\
+        headers['Access-Control-Allow-Headers'] = \
             'Content-Type, Content-Range, Content-Disposition'
 
     def initialize(self, request, response):
@@ -244,16 +242,16 @@ class CORSHandler(webapp2.RequestHandler):
 
 
 class UploadHandler(CORSHandler):
-    def validate(self, file):
-        if file['size'] < MIN_FILE_SIZE:
+    def validate(self, file_stream):
+        if file_stream['size'] < MIN_FILE_SIZE:
             logging.info("SKIPPING FOR FILE TOO SMALL")
-            file['error'] = 'File is too small'
-        elif file['size'] > MAX_FILE_SIZE:
+            file_stream['error'] = 'File is too small'
+        elif file_stream['size'] > MAX_FILE_SIZE:
             logging.info("SKIPPING FOR FILE TOO BIG")
-            file['error'] = 'File is too big'
-        elif not ACCEPT_FILE_TYPES.match(file['type']):
+            file_stream['error'] = 'File is too big'
+        elif not ACCEPT_FILE_TYPES.match(file_stream['type']):
             logging.info("SKIPPING FOR FILE TYPE")
-            file['error'] = 'Filetype not allowed'
+            file_stream['error'] = 'File type not allowed'
         else:
             return True
         return False
@@ -272,10 +270,11 @@ class UploadHandler(CORSHandler):
             return re.match(redirect_allow_target, redirect)
         return False
 
-    def get_file_size(self, file):
-        file.seek(0, 2)  # Seek to the end of the file
-        size = file.tell()  # Get the position of EOF
-        file.seek(0)  # Reset the file position to the beginning
+    @staticmethod
+    def get_file_size(file_stream):
+        file_stream.seek(0, 2)  # Seek to the end of the file
+        size = file_stream.tell()  # Get the position of EOF
+        file_stream.seek(0)  # Reset the file position to the beginning
         return size
 
     def handle_upload(self, stream_key):
@@ -286,10 +285,11 @@ class UploadHandler(CORSHandler):
             if type(fieldStorage) is unicode:
                 logging.info("UNICODE")
                 continue
-            result = {}
-            result['name'] = urllib.unquote(fieldStorage.filename)
-            result['type'] = fieldStorage.type
-            result['size'] = self.get_file_size(fieldStorage.file)
+            result = {
+                'name': urllib.unquote(fieldStorage.filename),
+                'type': fieldStorage.type,
+                'size': self.get_file_size(fieldStorage.file)
+            }
             logging.info("before validate")
             if self.validate(result):
                 logging.info("after validate")
@@ -309,8 +309,10 @@ class UploadHandler(CORSHandler):
 
     def post(self, stream_key):
         logging.info("HEY I HIT THE POST")
-        if (self.request.get('_method') == 'DELETE'):
+
+        if self.request.get('_method') == 'DELETE':
             return self.delete()
+
         result = {'files': self.handle_upload(stream_key)}
         s = self.json_stringify(result)
         redirect = self.request.get('redirect')
@@ -324,8 +326,9 @@ class UploadHandler(CORSHandler):
 
 
 class FileHandler(CORSHandler):
-    def normalize(self, str):
-        return urllib.quote(urllib.unquote(str), '')
+    @staticmethod
+    def normalize(strng):
+        return urllib.quote(urllib.unquote(strng), '')
 
     def get(self, resource):
         logging.info(resource)
@@ -342,8 +345,7 @@ class FileHandler(CORSHandler):
             thumbnail_key = key + THUMB_SUFFIX
         if 'application/json' in self.request.headers.get('Accept'):
             self.response.headers['Content-Type'] = 'application/json'
-        self.response.write("erggg")
-
+        self.response.write()
 
 
 app = webapp2.WSGIApplication([
@@ -362,8 +364,8 @@ app = webapp2.WSGIApplication([
     (r'/images/(\w+\-?\w*)', UploadHandler),
     (r'/sendmail', SendMail),
     (r'/error', Error),
-    (r'/rebuildIndex',Rebuild),
-    #(r'/api/streams/create/?',ApiCreateStream),
-    (r'/api/streams/trending/?',ApiStreamTrending),
+    (r'/rebuildIndex', Rebuild),
+    # (r'/api/streams/create/?',ApiCreateStream),
+    (r'/api/streams/trending/?', ApiStreamTrending),
     (r'/api/streams', ApiStreamRest)
 ], debug=True)
