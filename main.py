@@ -10,6 +10,7 @@ import logging
 import urllib
 import re
 import json
+from Models import models
 from services import services
 
 
@@ -73,6 +74,16 @@ class StreamRest(webapp2.RequestHandler):
         stream = services.get_stream(stream_id)
         self.response.write(template.render(stream=stream, index=0, length=len(stream.images)))
 
+#Note: My idea was to create new handlers that would return JSON instead of trying to setup another file and stripping things out.
+class ApiStreamRest(webapp2.RequestHandler):
+    def get(self):
+        all_streams = services.get_all_streams()
+        streams_json = []
+        for stream in all_streams:
+            streams_json.append(json.dumps(stream,cls=models.CustomEncoder))
+
+        logging.info(json.dumps(streams_json))
+
 
 class StreamTrending(webapp2.RequestHandler):
     min_report_settings = 0
@@ -94,6 +105,38 @@ class StreamTrending(webapp2.RequestHandler):
         trending_streams = services.get_trending_streams()
 
         self.redirect('/streams/trending')
+
+
+class ApiStreamTrending(webapp2.RequestHandler):
+    min_report_settings = 0
+
+    def get(self):
+        # change out with trending streams
+        trending_streams = []
+        trending_streams_json=[]
+        trending_streams = services.get_trending_streams()
+
+        min_report_settings = services.get_email_config()
+        logging.info(min_report_settings)
+        for stream in trending_streams:
+            trending_streams_json.append(json.dumps(stream, cls=models.CustomEncoder))
+            logging.info(json.dumps(stream))    
+        
+        ret_trend_settings = {'trending_streams':trending_streams, "min_report_settings":min_report_settings}
+        logging.info(ret_trend_settings)
+        streams_json = json.dumps(ret_trend_settings, indent=4, cls=models.CustomEncoder)
+        logging.info(streams_json)
+        self.response.write(json.dumps(streams_json))
+
+
+    def post(self):
+        reportSettings = self.request.get_all('reporting')
+
+        min_report_Settings = services.update_email_frequency(reportSettings)
+        trending_streams = services.get_trending_streams()
+
+        self.redirect('/streams/trending')
+
 
 
 class StreamSearchSuggestions(webapp2.RequestHandler):
@@ -164,7 +207,6 @@ class SendMail(webapp2.RequestHandler):
             return
         else:
             result = services.send_mail(emails)
-
 
 
 class Error(webapp2.RequestHandler):
@@ -320,5 +362,8 @@ app = webapp2.WSGIApplication([
     (r'/images/(\w+\-?\w*)', UploadHandler),
     (r'/sendmail', SendMail),
     (r'/error', Error),
-    (r'/rebuildIndex',Rebuild)
+    (r'/rebuildIndex',Rebuild),
+    #(r'/api/streams/create/?',ApiCreateStream),
+    (r'/api/streams/trending/?',ApiStreamTrending),
+    (r'/api/streams', ApiStreamRest)
 ], debug=True)

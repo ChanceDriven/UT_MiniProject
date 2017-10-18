@@ -1,4 +1,5 @@
 import datetime
+import json
 from google.appengine.ext import ndb
 
 
@@ -32,7 +33,10 @@ class Stream(ndb.Model):
 
     def __str__(self):
         return self.name + '\t' + str(self.author) + '\nImages: ' + str(self.images)
-
+    
+    @property
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
 class Image(ndb.Model):
     comments = ndb.StringProperty()
@@ -44,6 +48,10 @@ class Image(ndb.Model):
         # put image into google, get url
         self.comments = comments
         self.content = data
+    
+    @property
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
 
 class EmailConfig(ndb.Model):
@@ -53,3 +61,14 @@ class EmailConfig(ndb.Model):
         ndb.Model.__init__(self)
         self.reportFrequency = 0
         self.lastEmailSent = datetime.datetime.now()
+    
+    @property
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
+
+#Note:Trying to create a Json encoder to handle more complex objects 
+class CustomEncoder(json.JSONEncoder):
+     def default(self, o):
+         if isinstance(o, datetime.datetime):
+             return {'__datetime__': o.replace(microsecond=0).isoformat()}
+         return {"__{}__".format(o.__class__.__name__): o.__dict__}
