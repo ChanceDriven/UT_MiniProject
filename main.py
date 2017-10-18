@@ -74,7 +74,7 @@ class StreamRest(webapp2.RequestHandler):
         stream = services.get_stream(stream_id)
         self.response.write(template.render(stream=stream, index=0, length=len(stream.images)))
 
-
+#Note: My idea was to create new handlers that would return JSON instead of trying to setup another file and stripping things out.
 class ApiStreamRest(webapp2.RequestHandler):
     def get(self):
         all_streams = services.get_all_streams()

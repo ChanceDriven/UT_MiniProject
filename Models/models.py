@@ -66,7 +66,7 @@ class EmailConfig(ndb.Model):
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
-
+#Note:Trying to create a Json encoder to handle more complex objects 
 class CustomEncoder(json.JSONEncoder):
      def default(self, o):
          if isinstance(o, datetime.datetime):
