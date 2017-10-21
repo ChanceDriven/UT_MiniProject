@@ -40,9 +40,12 @@ class HelloWebapp2(webapp2.RequestHandler):
 
 
 class Login(webapp2.RequestHandler):
-    def post(self, user_id):
-        # Need to return a session ID instead
-        self.response.write(user_id)
+    def post(self, username, password):
+        try:
+            self.response.write(services.login(username, password))
+        except models.UnauthorizedException:
+            self.response.set_status(403)
+            self.response.write("Bad password")
 
 
 class LoginScreen(webapp2.RequestHandler):
@@ -76,7 +79,7 @@ class StreamRest(webapp2.RequestHandler):
 # Note: My idea was to create new handlers that would return JSON
 # instead of trying to setup another file and stripping things out.
 class ApiStreamRest(webapp2.RequestHandler):
-    
+
     def get(self):
         all_streams = services.get_all_streams()
         streams_json = []

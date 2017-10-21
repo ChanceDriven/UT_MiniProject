@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import json
 from google.appengine.ext import ndb
 
@@ -54,9 +55,22 @@ class Image(ndb.Model):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
 
+class User(ndb.Model):
+    username = ndb.StringProperty()
+    password_hash = ndb.StringProperty()
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password_hash = hashlib.sha224(password).hexdigest()
+
+    def check_login(self, username, password):
+        return self.username == username and self.password_hash == hashlib.sha224(password).hexdigest()
+
+
 class EmailConfig(ndb.Model):
     reportFrequency = ndb.IntegerProperty()
     lastEmailSent = ndb.DateTimeProperty()
+
     def __init__(self):
         ndb.Model.__init__(self)
         self.reportFrequency = 0
@@ -66,9 +80,18 @@ class EmailConfig(ndb.Model):
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
+
 #Note:Trying to create a Json encoder to handle more complex objects 
 class CustomEncoder(json.JSONEncoder):
-     def default(self, o):
-         if isinstance(o, datetime.datetime):
+
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
              return {'__datetime__': o.replace(microsecond=0).isoformat()}
          return {"__{}__".format(o.__class__.__name__): o.__dict__}
+
+
+class UnauthorizedException(Exception):
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message

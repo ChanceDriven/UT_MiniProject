@@ -1,6 +1,5 @@
 import json
 import datetime
-import re
 import logging
 import os
 
@@ -8,6 +7,7 @@ from Models import models
 from google.appengine.ext import ndb
 from google.appengine.api import mail
 from google.appengine.api import search
+import com.google.api.server
 
 _INDEX_NAME = "streams"
 
@@ -38,7 +38,7 @@ def create_stream(name, subscribers=[], image_url="", tags=[], message_to_subs="
 
 def add_to_stream_index(stream, key):
     if stream:
-        search.Index(name=_INDEX_NAME).put(create_document(stream.name,stream.tags,
+        search.Index(name=_INDEX_NAME).put(create_document(stream.name, stream.tags,
                                                            str(key), stream.coverImgUrl, stream.rank))
 
 
@@ -359,3 +359,17 @@ def delete_index():
 
         # Delete the documents for the given IDs
         index.delete(document_ids)
+
+
+def login(username, password):
+    temp_user = models.User
+    existing_user = temp_user.query(temp_user.username == username).fetch()
+    if existing_user:
+        existing_user = existing_user[0]
+        if existing_user.check_login(username, password):
+            return existing_user.password_hash
+        else:
+            raise com.google.api.server.spi.response.UnauthorizedException()
+    user = models.User(username, password)
+    user.put()
+    return user.password_hash
