@@ -24,7 +24,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ViewStream" />
-        <activity android:name=".ViewAllStreams"></activity>
+        <activity android:name=".ViewAllStreams" />
+        <activity android:name=".SearchResultActivity" />
+        <activity android:name=".CameraActivity" />
+        <activity android:name=".UploadActivity"></activity>
     </application>
 
 </manifest>
