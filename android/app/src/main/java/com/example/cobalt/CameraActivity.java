@@ -1,9 +1,11 @@
 package com.example.cobalt;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -18,4 +20,11 @@ public class CameraActivity extends AppCompatActivity {
                 .commit();
         }
     }
+
+    public void backToStreams(View view){
+        Intent intent = new Intent(this, ViewAllStreams.class);
+        startActivity(intent);
+    }
+
+    
 }
