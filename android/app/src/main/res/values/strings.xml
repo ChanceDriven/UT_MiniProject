@@ -13,4 +13,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="intro_message">Test</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="request_permission">This sample needs camera permission.</string>
 </resources>
