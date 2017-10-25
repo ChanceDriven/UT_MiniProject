@@ -25,13 +25,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Manage" />
-        <activity android:name=".CreateStrean" />
-        <activity android:name=".ViewStream"></activity>
+
         <activity android:name=".ViewAllStreams" />
         <activity android:name=".SearchResultActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".UploadActivity"></activity>
+        <activity android:name=".UploadActivity" />
+
+        <activity android:name=".Manage" />
+        <activity android:name=".CreateStrean" />
+        <activity android:name=".ViewStream"></activity>
 
     </application>
 
