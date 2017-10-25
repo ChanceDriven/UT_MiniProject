@@ -13,7 +13,7 @@ public class ViewAllStreams extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_all_streams);
-/*
+
         GridView gridview = (GridView) findViewById(R.id.all_streams_grid);
         gridview.setAdapter(new ImageAdapter(this));
 
@@ -24,6 +24,6 @@ public class ViewAllStreams extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
-        */
+
     }
 }
