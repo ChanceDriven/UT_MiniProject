@@ -82,12 +82,12 @@ class EmailConfig(ndb.Model):
 
 
 #Note:Trying to create a Json encoder to handle more complex objects 
-class CustomEncoder(json.JSONEncoder):
+#class CustomEncoder(json.JSONEncoder):
 
-    def default(self, o):
-        if isinstance(o, datetime.datetime):
-             return {'__datetime__': o.replace(microsecond=0).isoformat()}
-         return {"__{}__".format(o.__class__.__name__): o.__dict__}
+#    def default(self, o):
+#        if isinstance(o, datetime.datetime):
+#             return {'__datetime__': o.replace(microsecond=0).isoformat()}
+#         return {"__{}__".format(o.__class__.__name__): o.__dict__}
 
 
 class UnauthorizedException(Exception):

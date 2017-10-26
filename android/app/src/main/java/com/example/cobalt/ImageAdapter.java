@@ -36,9 +36,9 @@ public class ImageAdapter extends BaseAdapter {
             if (convertView == null) {
                 // if it's not recycled, initialize some attributes
                 imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(30, 30));
+                imageView.setLayoutParams(new GridView.LayoutParams(130, 130));
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setPadding(8, 8, 8, 8);
+                imageView.setPadding(16,16,16,16);
             } else {
                 imageView = (ImageView) convertView;
             }
@@ -51,11 +51,7 @@ public class ImageAdapter extends BaseAdapter {
         //pick it up here tomorrow
         //https://acadgild.com/blog/load-image-url-imageview-android/
         private Integer[] mThumbIds = new Integer [] {
-
-                1, 2, 3,4,5,6,7,8,9,10,11,12,13,14,15,16
-
-
-
+                1, 2, 3,4,5,6,7,8,1, 2, 3,4,5,6,7,8,1, 2, 3,4,5,6,7,8
         };
 
 }
