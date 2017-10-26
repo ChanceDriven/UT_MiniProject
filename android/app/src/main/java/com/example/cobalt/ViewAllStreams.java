@@ -34,7 +34,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class ViewAllStreams extends AppCompatActivity {
     private static final String TAG = "ViewAllStreams";
-    public String GET_ALL_STREAMS = "http://192.168.2.5:8080/api_streams";
+    public String GET_ALL_STREAMS = "https://fall-ut-apt.appspot.com/api_streams";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +63,7 @@ public class ViewAllStreams extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try{
+                    Log.i(TAG, "getStreams: Success");
                     JSONObject jObj = new JSONObject(new String(responseBody));
                     JSONArray jArr = jObj.getJSONArray("all_Streams");
                     System.out.println(new String(responseBody));
