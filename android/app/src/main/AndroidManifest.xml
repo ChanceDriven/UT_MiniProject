@@ -32,7 +32,7 @@
         <activity android:name=".UploadActivity" />
 
         <activity android:name=".Manage" />
-        <activity android:name=".CreateStrean" />
+        <activity android:name=".CreateStream" />
         <activity android:name=".ViewStream"></activity>
 
     </application>
