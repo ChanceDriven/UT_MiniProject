@@ -35,18 +35,19 @@
         android:id="@+id/button"
         android:layout_width="114dp"
         android:layout_height="36dp"
+        android:layout_marginRight="40dp"
+        android:onClick="ViewMore"
         android:text="More Pictures"
         android:textSize="10dp"
-        tools:layout_editor_absoluteY="173dp"
-        android:layout_marginRight="111dp"
         app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteX="159dp" />
+        tools:layout_editor_absoluteY="167dp" />
 
     <Button
         android:id="@+id/button2"
         android:layout_width="115dp"
         android:layout_height="34dp"
         android:layout_marginLeft="16dp"
+        android:onClick="Subscribe"
         android:text="subscribe"
         app:layout_constraintLeft_toLeftOf="parent"
         tools:layout_editor_absoluteY="203dp" />
