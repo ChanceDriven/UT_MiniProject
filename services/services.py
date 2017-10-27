@@ -7,7 +7,7 @@ from Models import models
 from google.appengine.ext import ndb
 from google.appengine.api import mail
 from google.appengine.api import search
-import com.google.api.server
+#import com.google.api.server
 
 _INDEX_NAME = "streams"
 

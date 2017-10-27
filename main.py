@@ -82,11 +82,12 @@ class ApiStreamRest(webapp2.RequestHandler):
 
     def get(self):
         all_streams = services.get_all_streams()
-        streams_json = []
+        list_streams = []
         for stream in all_streams:
-            streams_json.append(json.dumps(stream, cls=models.CustomEncoder))
+            list_streams.append((stream.name,stream.coverImgUrl))
 
-        logging.info(json.dumps(streams_json))
+        logging.info(json.dumps("TEST"))
+        self.response.write("TEST")
 
 
 class StreamTrending(webapp2.RequestHandler):
@@ -370,5 +371,5 @@ app = webapp2.WSGIApplication([
     (r'/rebuildIndex', Rebuild),
     # (r'/api/streams/create/?',ApiCreateStream),
     (r'/api/streams/trending/?', ApiStreamTrending),
-    (r'/api/streams', ApiStreamRest)
+    (r'/api_streams', ApiStreamRest)
 ], debug=True)
