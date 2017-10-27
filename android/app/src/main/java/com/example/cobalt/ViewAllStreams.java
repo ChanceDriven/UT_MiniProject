@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -35,6 +36,16 @@ import cz.msebera.android.httpclient.Header;
 public class ViewAllStreams extends AppCompatActivity {
     private static final String TAG = "ViewAllStreams";
     public String GET_ALL_STREAMS = "https://fall-ut-apt.appspot.com/api_streams";
+
+    String streamid;
+    String name;
+    String coverImgURL;
+
+    List<Stream> streams = new ArrayList<Stream>();
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +70,9 @@ public class ViewAllStreams extends AppCompatActivity {
         final String F_TAG = "getStreams";
         AsyncHttpClient httpClient = new AsyncHttpClient();
         Log.i(TAG, "getStreams: Async Task Spawned");
+
+
+
         RequestHandle allstreams = httpClient.get(GET_ALL_STREAMS, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -68,6 +82,23 @@ public class ViewAllStreams extends AppCompatActivity {
                     JSONArray jArr = jObj.getJSONArray("all_Streams");
                     System.out.println(new String(responseBody));
                     Log.i(F_TAG,new String(responseBody));
+
+                    for(int i =0; i< jArr.length(); i++){
+                        JSONArray jStream = jArr.getJSONArray(i);
+                        streamid = jStream.getString(0);
+                        name = jStream.getString(1);
+                        coverImgURL = jStream.getString(2);
+                        Stream oStream = new Stream(streamid,name,coverImgURL);
+                        streams.add(oStream);
+
+
+
+
+                    }
+
+                    createGridView(streams);
+
+
                 }
                 catch(JSONException je){
                     je.getCause();
@@ -82,11 +113,12 @@ public class ViewAllStreams extends AppCompatActivity {
 
     }
 
-    public void createGridView(List<String> covers_list, List<String> names_list) {
+    public void createGridView(List<Stream> streams) {
 
         GridView gridView = (GridView) findViewById(R.id.all_streams_grid);
-        //GridViewAdapter customGridAdapter = new GridViewAdapter(this, covers_list);
-        //GridViewAdapter2 customGridAdapter = new GridViewAdapter2(this, covers_list, names_list);
+
+        GridViewAdapter customGridAdapter = new GridViewAdapter(this, streams);
+
         //gridView.setAdapter(customGridAdapter);
 
         //gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
